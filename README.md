@@ -36,9 +36,14 @@
 
 ## 📊 Trạng thái / Status
 
-- ✅ **1.0.0 — Clone đầu tiên chạy hoàn chỉnh:** hiện màn đăng nhập và đăng nhập thành công (đã kiểm chứng trên Galaxy A23, Android 14).
+- ✅ **1.0.0 — Clone đầu tiên chạy hoàn chỉnh:** hiện màn đăng nhập và đăng nhập thành công.
 - 🔄 **Đang test:** 2 clone cùng online, nhãn thông báo, độ trễ, RAM, pin, chạy nền — rồi mới tới 3 và 4.
-- 🧪 **Chưa kiểm chứng cho mọi dòng máy:** hiện chỉ mới chứng minh trên một máy Android 14 chip arm64.
+
+> ⚠️ **CHỈ MỚI THỬ NGHIỆM TRÊN MỘT MÁY DUY NHẤT — ONLY TESTED ON ONE PHONE**
+>
+> - 📱 **Máy đã test / Tested device:** Samsung Galaxy A23 (SM-A235F/DS), Android 14, One UI 6.1, RAM 6 GB, chip arm64-v8a.
+> - 🚫 **CHƯA áp dụng và CHƯA kiểm chứng trên các loại máy khác.** Dùng trên máy khác (hãng khác, phiên bản Android khác, chip khác) có thể không chạy được, hoặc gặp lỗi khác — vì mỗi hãng tùy biến Android một kiểu.
+> - **NOT tested on other phone models. Use on another device may fail or behave differently.**
 
 ## 📖 Hành trình dự án / Project Journey
 
