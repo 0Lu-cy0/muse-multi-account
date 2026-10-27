@@ -64,6 +64,12 @@ How did this project go from design to the day it ran, and through which bugs? T
 
 ---
 
+## 📧 Contact
+
+For all contact about this project, please email: **nc12042004@gmail.com**
+
+---
+
 <div align="center">
 
 💜 **Made for people who live on many accounts — one app, many accounts, no more switching back and forth.**
