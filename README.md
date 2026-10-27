@@ -45,6 +45,12 @@
 > - 📱 **Tested device:** Samsung Galaxy A23 (SM-A235F/DS), Android 14, One UI 6.1, 6 GB RAM, arm64-v8a chip.
 > - 🚫 **NOT applied to and NOT verified on other phone models.** Use on another device (different brand, Android version or chip) may fail or behave differently — every brand customises Android differently.
 
+## ⚠️ Account safety — read before you use
+
+- 📧 **Use email, not a phone number, for your accounts.** A phone number is a strong identifier: it can link multiple accounts together, and to a real person, a SIM and a carrier. Prefer a separate email address for each account.
+- 📱 **If you use a phone number anyway, that is your choice and your risk.** Possible consequences include: your accounts being linked together, extra verification checks, accounts being flagged or locked, or losing access to an account.
+- 🛠️ **What we can and cannot do.** What we can guarantee is that the app itself runs well: clones stay isolated, and where technically possible we separate each clone's identity and network. We cannot control how you use your accounts. These warnings are given upfront so you decide knowing the risks. Where we can technically prevent a risk, we will add that protection; until then, this warning stands.
+
 ## 📖 Project Journey
 
 How did this project go from design to the day it ran, and through which bugs? The full story, in Vietnamese and English:
