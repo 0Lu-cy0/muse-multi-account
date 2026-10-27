@@ -64,9 +64,9 @@ Muốn biết dự án đã đi từ thiết kế tới ngày chạy được nh
 
 ---
 
-## 📧 Liên hệ
+## 🤝 Đóng góp
 
-Mọi liên hệ về dự án này, vui lòng gửi email tới: **nc12042004@gmail.com**
+Mọi đóng góp cho dự án này, vui lòng liên hệ qua email: **nc12042004@gmail.com**
 
 ---
 
