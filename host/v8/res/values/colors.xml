@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- v8 palette: matches the generic teal/amber launcher icon. -->
+    <color name="teal_dark">#004D5C</color>
+    <color name="amber">#F5A623</color>
+    <color name="screen_bg">#EAF2F2</color>
+    <color name="card_bg">#FFFFFF</color>
+    <color name="vpn_card_bg">#D6E9EC</color>
+    <color name="text_dark">#12333A</color>
+    <color name="text_muted">#5A6E72</color>
+    <color name="danger">#C62828</color>
+</resources>
