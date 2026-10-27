@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Muse Container — prototype v1"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Host only. It does NOT contain, bundle, modify or re-sign the Muse APK. You supply the APK file; clones are named records with isolated host-side data dirs until a virtual engine is integrated and proven on a real phone." />
+        <Button android:id="@+id/btnPickApk"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="1. Pick / import user-supplied APK" />
+        <EditText android:id="@+id/cloneNameInput"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="Clone name (default: Clone 1, Clone 2, ...)" />
+        <Button android:id="@+id/btnCreateClone"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="2. Create named clone" />
+        <Button android:id="@+id/btnBattery"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="3. Request battery-optimisation exemption" />
+        <TextView
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Why: Android/Samsung kill background apps. Exemption + a foreground service are required for continuous notifications, but they do NOT guarantee Android will never kill a clone — that must be tested on the real phone." />
+        <Button android:id="@+id/btnKeepAlive"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="4. Start keep-alive service (prototype)" />
+        <Button android:id="@+id/btnRefresh"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Refresh clone list" />
+        <TextView android:id="@+id/statusText"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Status: no APK imported yet." />
+        <LinearLayout android:id="@+id/clonesContainer"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </LinearLayout>
+</ScrollView>
