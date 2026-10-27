@@ -45,6 +45,12 @@
 > - 📱 **Máy đã test:** Samsung Galaxy A23 (SM-A235F/DS), Android 14, One UI 6.1, RAM 6 GB, chip arm64-v8a.
 > - 🚫 **CHƯA áp dụng và CHƯA kiểm chứng trên các loại máy khác.** Dùng trên máy khác (hãng khác, phiên bản Android khác, chip khác) có thể không chạy được, hoặc gặp lỗi khác — vì mỗi hãng tùy biến Android một kiểu.
 
+## ⚠️ An toàn tài khoản — đọc trước khi dùng
+
+- 📧 **Dùng email, đừng dùng số điện thoại cho tài khoản.** Số điện thoại là định danh rất mạnh: nó có thể liên kết nhiều tài khoản với nhau, và liên kết tới một người thật, một SIM, một nhà mạng. Mỗi tài khoản nên dùng một email riêng.
+- 📱 **Nếu bạn vẫn dùng số điện thoại thì đó là lựa chọn và rủi ro của bạn.** Hậu quả có thể xảy ra gồm: các tài khoản bị liên kết với nhau, bị bắt xác minh thêm, bị gắn cờ hoặc bị khóa, hoặc mất quyền truy cập tài khoản.
+- 🛠️ **Những gì chúng tôi lo được và không lo được.** Những gì chúng tôi lo được là app chạy tốt: các clone tách biệt nhau, và chỗ nào làm được về mặt kỹ thuật thì sẽ tách riêng danh tính và mạng cho từng clone. Cách bạn dùng tài khoản ra sao thì chúng tôi không kiểm soát được. Các cảnh báo này được đưa ra trước để bạn quyết định khi đã biết rủi ro. Chỗ nào ngăn được về mặt kỹ thuật thì chúng tôi sẽ bổ sung biện pháp ngăn đó; còn trước khi làm được thì cảnh báo này vẫn có hiệu lực.
+
 ## 📖 Hành trình dự án
 
 Muốn biết dự án đã đi từ thiết kế tới ngày chạy được như thế nào, qua những lỗi gì? Đọc ở đây — toàn bộ câu chuyện, song ngữ Việt – Anh:
