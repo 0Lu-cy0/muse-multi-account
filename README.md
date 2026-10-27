@@ -64,9 +64,9 @@ How did this project go from design to the day it ran, and through which bugs? T
 
 ---
 
-## 📧 Contact
+## 🤝 Contributing
 
-For all contact about this project, please email: **nc12042004@gmail.com**
+For all contributions to this project, please contact via email: **nc12042004@gmail.com**
 
 ---
 
