@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.musecontainer"
+    android:versionCode="16"
+    android:versionName="0.5.0-bubbles">
+    <uses-sdk android:minSdkVersion="29" android:targetSdkVersion="34" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <!-- v5: overlay permission for chat bubbles + fast-switch button.
+         Declared here explicitly (the merged manifest already carried it
+         via the engine manifest). The user must still grant it in
+         Settings: it is a special permission, not a runtime grant. -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <application
+        android:name=".MuseContainerApp"
+        android:allowBackup="false"
+        android:label="Muse Container (prototype)"
+        android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        <activity android:name=".MainActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <service android:name=".KeepAliveService" android:exported="false"
+            android:foregroundServiceType="specialUse" />
+        <!-- v5: chat bubbles + fast-switch overlay. Foreground service
+             (specialUse, like KeepAliveService) so Samsung is less
+             likely to kill the overlay; it runs no loops or polling. -->
+        <service android:name=".BubbleService" android:exported="false"
+            android:foregroundServiceType="specialUse" />
+    </application>
+</manifest>
