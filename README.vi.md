@@ -64,6 +64,12 @@ Muốn biết dự án đã đi từ thiết kế tới ngày chạy được nh
 
 ---
 
+## 📧 Liên hệ
+
+Mọi liên hệ về dự án này, vui lòng gửi email tới: **nc12042004@gmail.com**
+
+---
+
 <div align="center">
 
 💜 **Dành cho người sống với nhiều tài khoản — một app, nhiều tài khoản, không phải đổi qua đổi lại.**
