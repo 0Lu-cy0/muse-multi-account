@@ -1,8 +1,8 @@
 <div align="center">
 
-# 📱 Muse Multi-Account
+# 📱 Muse Multi-Account dành cho Android
 
-### Chạy nhiều tài khoản Muse trên một điện thoại Android
+### Chạy nhiều tài khoản Muse trên một điện thoại Android — chỉ dành cho Android, không dùng cho iOS
 
 [![Release](https://img.shields.io/badge/release-1.0.0-brightgreen?style=for-the-badge)](https://github.com/0Lu-cy0/muse-multi-account/releases/tag/v1.0.0)
 [![Android](https://img.shields.io/badge/Android-10%2B-3DDC84?style=for-the-badge&logo=android)](https://developer.android.com)
