@@ -41,6 +41,46 @@ import top.niunaijun.blackbox.utils.compat.ParceledListSliceCompat;
 public class IPackageManagerProxy extends BinderInvocationStub {
     public static final String TAG = "PackageManagerStub";
 
+    // v20 (bcore-v4q) PM re-entrancy guard: condition-independent backstop
+    // for the hook-recursion family (logs 2026-10-28 13:05 and 13:50).
+    // In :black, BlackManager.getService() returns the LOCAL service object
+    // (not a BinderProxy), so a service method that calls the hooked system
+    // PackageManager re-enters this hook ON THE SAME THREAD; without a
+    // guard the cycle repeats until StackOverflowError. The guard counts
+    // per-thread re-entry depth: depth > 0 means this thread is already
+    // inside this hook, so the call is routed straight to the unhooked
+    // base (who == mBase) instead of the service. It does NOT depend on
+    // the package name or on the process classification — which is what
+    // failed in log-9 (see the BlackBoxCore classification fix, same
+    // version). Binder threads are pooled, so the depth is always
+    // restored in a finally block; a stale flag would wrongly bypass
+    // later, unrelated calls on the same thread.
+    private static final ThreadLocal<Integer> sPMHookDepth = new ThreadLocal<>();
+    private static boolean sPMGuardLogged = false;
+
+    private static boolean pmGuardTrip(String methodName, String packageName) {
+        Integer depth = sPMHookDepth.get();
+        int d = (depth == null ? 0 : depth.intValue());
+        if (d > 0) {
+            if (!sPMGuardLogged) {
+                sPMGuardLogged = true;
+                Log.w("BlackManager", "PM guard tripped: re-entered " + methodName + " for " + packageName + " at depth " + (d + 1) + ", bypassing to unhooked base");
+            }
+            return true;
+        }
+        sPMHookDepth.set(d + 1);
+        return false;
+    }
+
+    private static void pmGuardExit() {
+        Integer depth = sPMHookDepth.get();
+        if (depth == null || depth.intValue() <= 1) {
+            sPMHookDepth.remove();
+        } else {
+            sPMHookDepth.set(depth.intValue() - 1);
+        }
+    }
+
     public IPackageManagerProxy() {
         super(BRActivityThread.get().sPackageManager().asBinder());
     }
@@ -132,7 +172,10 @@ public class IPackageManagerProxy extends BinderInvocationStub {
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             String packageName = (String) args[0];
             int flags = MethodParameterUtils.toInt(args[1]);
-
+            if (pmGuardTrip("getPackageInfo", packageName)) {
+                return method.invoke(who, args);
+            }
+            try {
             // Provide fake Google Play Services info for MIUI apps
             if ("com.android.vending".equals(packageName)) {
                 return createFakeGooglePlayServicesPackageInfo();
@@ -189,6 +232,9 @@ public class IPackageManagerProxy extends BinderInvocationStub {
                 return method.invoke(who, args);
             }
             return null;
+            } finally {
+                pmGuardExit();
+            }
         }
         
         private PackageInfo createFakeGooglePlayServicesPackageInfo() {
@@ -335,6 +381,10 @@ public class IPackageManagerProxy extends BinderInvocationStub {
             // service's host branch then reaches the real manager
             // via this same bypass on the :black side.
             String packageName = (String) args[0];
+            if (pmGuardTrip("getApplicationInfo", packageName)) {
+                return method.invoke(who, args);
+            }
+            try {
             if (BlackBoxCore.get().isServerProcess()
                     && BlackBoxCore.getHostPkg().equals(packageName)) {
                 return method.invoke(who, args);
@@ -352,6 +402,9 @@ public class IPackageManagerProxy extends BinderInvocationStub {
                 return method.invoke(who, args);
             }
             return null;
+            } finally {
+                pmGuardExit();
+            }
         }
     }
 

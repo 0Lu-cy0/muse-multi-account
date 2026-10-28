@@ -901,7 +901,26 @@ public class BlackBoxCore extends ClientConfiguration {
         if (processName.equals(BlackBoxCore.getHostPkg())) {
             mProcessType = ProcessType.Main;
             startLogcat();
-        } else if (processName.endsWith(getContext().getString(R.string.black_box_service_name))) {
+        } else if (processName.endsWith(":black")) {
+            // v20 (bcore-v4q) ROOT FIX for the whole hook-recursion family:
+            // NEVER resolve this through a baked R.string constant again.
+            // Bcore's precompiled classes carry R.string.black_box_service_name
+            // as the AAR-build-time int 0x7f0b001c. In the v4k APK that ID
+            // really was string/black_box_service_name, so :black classified
+            // as Server. Since v11 (array vpn_countries shifted aapt2 type
+            // IDs) the merged APK has 0x7f0b001c = layout/activity_launcher
+            // and string/black_box_service_name = 0x7f0d0027, so getString()
+            // on the baked ID returned the layout file path, endsWith
+            // failed, and :black was misclassified as BAppClient in every
+            // v11+ build. Consequences: isServerProcess() was false in
+            // :black (so the v18 PM bypass and v17 notification bypasses
+            // never fired there), and MethodHook.isEnable() (default:
+            // isBlackProcess()) was TRUE in :black, so hooks that v4k had
+            // disabled in :black became enabled — the recursion family.
+            // The literal ":black" is what the manifest process name ends
+            // with (android:process="@string/black_box_service_name"
+            // resolves to ":black" at install time from merged resources),
+            // so this comparison is immune to any future R shift.
             mProcessType = ProcessType.Server;
         } else {
             mProcessType = ProcessType.BAppClient;
