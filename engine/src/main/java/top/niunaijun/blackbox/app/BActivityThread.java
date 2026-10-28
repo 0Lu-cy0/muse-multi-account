@@ -338,12 +338,85 @@ public class BActivityThread extends IBActivityThread.Stub {
     }
     
     /**
+     * v19 (bcore-v4p) FIX for the log-8 bind failure (2026-10-28
+     * 13:33:01.729/.739): BPackageManagerService.getPackageInfo
+     * (com.facebook.aura, GET_PROVIDERS, userId) returned null in the
+     * :p0 guest process, even though the SAME service had returned a
+     * valid ApplicationInfo for the same package/user 0.33 s earlier
+     * (startProcessLocked, flags=0) and the host virtual list had just
+     * reported the guest installed for user 0. The null therefore is
+     * specific to the bind query's exact call, not to a missing
+     * package: the two leading mechanisms are (a) a component
+     * generation throw inside generatePackageInfo's GET_PROVIDERS
+     * branch, swallowed by its outer catch into a null return, and
+     * (b) a userId/packageName difference in :p0's query that the
+     * filtered log does not record. This helper recovers in order
+     * instead of dereferencing null: GET_PROVIDERS as requested, then
+     * flags=0 (the call proven to work in this window), then explicit
+     * userId 0, then getApplicationInfo synthesised into a PackageInfo.
+     * It NEVER returns a null ApplicationInfo to the caller as a
+     * success: if every step fails it returns null and the caller
+     * fails loudly with the package/user in the message, so the next
+     * log (BActivityThread tag, in the user's filter) shows exactly
+     * which step succeeded and which cause is left. See BUILD_V19.md.
+     */
+    private PackageInfo getBindPackageInfo(String packageName, int userId) {
+        PackageInfo packageInfo = BlackBoxCore.getBPackageManager()
+                .getPackageInfo(packageName, PackageManager.GET_PROVIDERS, userId);
+        if (packageInfo != null) {
+            return packageInfo;
+        }
+        Slog.e(TAG, "v19 bind recovery: getPackageInfo null for " + packageName
+                + " userId=" + userId + " flags=GET_PROVIDERS, retrying flags=0");
+        packageInfo = BlackBoxCore.getBPackageManager().getPackageInfo(packageName, 0, userId);
+        if (packageInfo != null) {
+            Slog.e(TAG, "v19 bind recovery: flags=0 succeeded for " + packageName
+                    + " userId=" + userId + " (GET_PROVIDERS query is the suspect)");
+            return packageInfo;
+        }
+        if (userId != 0) {
+            Slog.e(TAG, "v19 bind recovery: retrying " + packageName + " with userId=0");
+            packageInfo = BlackBoxCore.getBPackageManager()
+                    .getPackageInfo(packageName, PackageManager.GET_PROVIDERS, 0);
+            if (packageInfo == null) {
+                packageInfo = BlackBoxCore.getBPackageManager().getPackageInfo(packageName, 0, 0);
+            }
+            if (packageInfo != null) {
+                Slog.e(TAG, "v19 bind recovery: userId=0 succeeded for " + packageName
+                        + " (caller userId=" + userId + " is the suspect)");
+                return packageInfo;
+            }
+        }
+        ApplicationInfo applicationInfo = BlackBoxCore.getBPackageManager()
+                .getApplicationInfo(packageName, 0, userId);
+        if (applicationInfo != null) {
+            Slog.e(TAG, "v19 bind recovery: getApplicationInfo succeeded for " + packageName
+                    + " userId=" + userId + "; synthesising PackageInfo with empty providers");
+            PackageInfo synthesised = new PackageInfo();
+            synthesised.packageName = packageName;
+            synthesised.applicationInfo = applicationInfo;
+            synthesised.providers = new ProviderInfo[]{};
+            return synthesised;
+        }
+        try {
+            Slog.e(TAG, "v19 bind recovery: ALL steps failed for " + packageName
+                    + " userId=" + userId + "; installed packages for user: "
+                    + BlackBoxCore.getBPackageManager().getInstalledPackagesAsUser(userId));
+        } catch (Throwable ignored) {
+        }
+        return null;
+    }
+
+    /**
      * Create a minimal bind application data object
      */
     private Object createBindApplicationData(String packageName, String processName) {
         try {
             // Get package info to create application info
-            PackageInfo packageInfo = BlackBoxCore.getBPackageManager().getPackageInfo(packageName, PackageManager.GET_PROVIDERS, getUserId());
+            PackageInfo packageInfo = getBindPackageInfo(packageName, getUserId());
+            if (packageInfo == null) {
+                throw new RuntimeException("v19 bind recovery failed for " + packageName);
+            }
             ApplicationInfo applicationInfo = packageInfo.applicationInfo;
             
             // Create a simple data object that can be used by the new handleBindApplication method
@@ -372,7 +445,16 @@ public class BActivityThread extends IBActivityThread.Stub {
         } catch (Throwable ignored) {
         }
 
-        PackageInfo packageInfo = BlackBoxCore.getBPackageManager().getPackageInfo(packageName, PackageManager.GET_PROVIDERS, BActivityThread.getUserId());
+        // v19 (bcore-v4p): never dereference a null PackageInfo (log-8
+        // NPE at old line 376). getBindPackageInfo recovers (see above)
+        // or returns null, in which case fail loudly with the inputs
+        // instead of an NPE with no context.
+        PackageInfo packageInfo = getBindPackageInfo(packageName, BActivityThread.getUserId());
+        if (packageInfo == null) {
+            throw new RuntimeException("v19 bind recovery failed for " + packageName
+                    + " userId=" + BActivityThread.getUserId()
+                    + " (see v19 bind recovery log lines)");
+        }
         ApplicationInfo applicationInfo = packageInfo.applicationInfo;
         if (packageInfo.providers == null) {
             packageInfo.providers = new ProviderInfo[]{};

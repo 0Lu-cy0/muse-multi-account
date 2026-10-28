@@ -96,42 +96,72 @@ public class PackageManagerCompat {
                 p.reqFeatures.toArray(pi.reqFeatures);
             }
         }
+        // v19 (bcore-v4p) hardening: one bad component used to poison
+        // the WHOLE PackageInfo. generatePackageInfo(BPackageSettings)
+        // catches any Throwable from this method and returns null, so
+        // a single throwing component (e.g. one provider whose info
+        // generation fails) made getPackageInfo(pkg, GET_PROVIDERS)
+        // return null even though the package itself is installed —
+        // the leading mechanism for the log-8 bind NPE, where the
+        // flags=0 query for the same package/user succeeded 0.33 s
+        // earlier. Each item below is now generated defensively: a
+        // throw or a null result skips just that item, matching the
+        // pre-existing null-skip behaviour of the providers branch.
+        // A null list (p.activities etc.) is treated as empty rather
+        // than throwing on .size().
         if ((flags & PackageManager.GET_ACTIVITIES) != 0) {
             pi.activities = null;
-            final int N = p.activities.size();
+            final int N = p.activities == null ? 0 : p.activities.size();
             if (N > 0) {
                 int num = 0;
                 final ActivityInfo[] res = new ActivityInfo[N];
                 for (int i = 0; i < N; i++) {
                     final BPackage.Activity a = p.activities.get(i);
-                    res[num++] = generateActivityInfo(a, flags, state, userId);
+                    try {
+                        ActivityInfo info = generateActivityInfo(a, flags, state, userId);
+                        if (info != null) {
+                            res[num++] = info;
+                        }
+                    } catch (Throwable ignored) {
+                    }
                 }
                 pi.activities = ArrayUtils.trimToSize(res, num);
             }
         }
         if ((flags & PackageManager.GET_RECEIVERS) != 0) {
             pi.receivers = null;
-            final int N = p.receivers.size();
+            final int N = p.receivers == null ? 0 : p.receivers.size();
             if (N > 0) {
                 int num = 0;
                 final ActivityInfo[] res = new ActivityInfo[N];
                 for (int i = 0; i < N; i++) {
                     final BPackage.Activity a = p.receivers.get(i);
-                    res[num++] = generateActivityInfo(a, flags, state, userId);
+                    try {
+                        ActivityInfo info = generateActivityInfo(a, flags, state, userId);
+                        if (info != null) {
+                            res[num++] = info;
+                        }
+                    } catch (Throwable ignored) {
+                    }
                 }
                 pi.receivers = ArrayUtils.trimToSize(res, num);
             }
         }
         if ((flags & PackageManager.GET_SERVICES) != 0) {
             pi.services = null;
-            final int N = p.services.size();
+            final int N = p.services == null ? 0 : p.services.size();
             if (N > 0) {
                 int num = 0;
                 final ServiceInfo[] res = new ServiceInfo[N];
                 for (int i = 0; i < N; i++) {
                     final BPackage.Service s = p.services.get(i);
                     //res[num++] = generateServiceInfo(s, flags, state, userId);
-                    ServiceInfo serviceInfo = generateServiceInfo(s, flags, state, userId);
+                    ServiceInfo serviceInfo;
+                    try {
+                        serviceInfo = generateServiceInfo(s, flags, state, userId);
+                    } catch (Throwable ignored) {
+                        continue;
+                    }
                     if(serviceInfo == null) continue;
                     if ((flags & PackageManager.GET_META_DATA) != 0) {
                         if(serviceInfo.metaData != null){
@@ -146,13 +176,18 @@ public class PackageManagerCompat {
         }
         if ((flags & PackageManager.GET_PROVIDERS) != 0) {
             pi.providers = null;
-            final int N = p.providers.size();
+            final int N = p.providers == null ? 0 : p.providers.size();
             if (N > 0) {
                 int num = 0;
                 final ProviderInfo[] res = new ProviderInfo[N];
                 for (int i = 0; i < N; i++) {
                     final BPackage.Provider pr = p.providers.get(i);
-                    ProviderInfo providerInfo = generateProviderInfo(pr, flags, state, userId);
+                    ProviderInfo providerInfo;
+                    try {
+                        providerInfo = generateProviderInfo(pr, flags, state, userId);
+                    } catch (Throwable ignored) {
+                        continue;
+                    }
                     if (providerInfo != null) {
                         res[num++] = providerInfo;
                     }
@@ -162,13 +197,18 @@ public class PackageManagerCompat {
         }
         if ((flags & PackageManager.GET_INSTRUMENTATION) != 0) {
             pi.instrumentation = null;
-            int N = p.instrumentation.size();
+            int N = p.instrumentation == null ? 0 : p.instrumentation.size();
             if (N > 0) {
                 pi.instrumentation = new InstrumentationInfo[N];
+                int num = 0;
                 for (int i = 0; i < N; i++) {
-                    pi.instrumentation[i] = generateInstrumentationInfo(
-                            p.instrumentation.get(i), flags);
+                    try {
+                        pi.instrumentation[num++] = generateInstrumentationInfo(
+                                p.instrumentation.get(i), flags);
+                    } catch (Throwable ignored) {
+                    }
                 }
+                pi.instrumentation = java.util.Arrays.copyOf(pi.instrumentation, num);
             }
         }
         if ((flags & PackageManager.GET_PERMISSIONS) != 0) {
