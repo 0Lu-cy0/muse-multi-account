@@ -1,7 +1,7 @@
 {
-  "versionCode": 24,
-  "versionName": "0.8.3-notetab",
-  "apkUrl": "https://github.com/0Lu-cy0/muse-multi-account/releases/download/v0.8.3/muse-container-host-v13-debug.apk",
-  "sha256": "403d51fc634320929383e692122d22e02b1122e79ce33e87ba0f8cb237624834",
-  "changelog": "Ghi chú thành tab riêng ở dưới cùng (Clone / Ghi chú), không còn thẻ thu gọn cuối màn hình chính và không còn cuộn xuống dưới nữa. Logo tiêu đề thành hình tròn, tách nền trong suốt. Sửa thật nút dải VPN thành nút phụ nhỏ và giới hạn dòng trạng thái 2 dòng (hai điểm bản v12 đã ghi sai)."
+  "versionCode": 25,
+  "versionName": "0.8.4-utiltab",
+  "apkUrl": "https://github.com/0Lu-cy0/muse-multi-account/releases/download/v0.8.4/muse-container-host-v14-debug.apk",
+  "sha256": "4e4173e4c18aab5787455ac53eb29c650e233d319f16c98e0eb66e242970c825",
+  "changelog": "Tab bar dưới cùng có 3 tab: Clone / Ghi chú / Tiện ích. Tab Ghi chú chỉ còn thông tin để đọc; mọi nút điều khiển (bong bóng, chuyển nhanh, miễn pin, giữ chạy nền, làm mới, Kiểm tra cập nhật) chuyển sang tab Tiện ích riêng."
 }
