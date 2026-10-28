@@ -1,8 +1,8 @@
 {
-  "versionCode": 32,
-  "versionName": "1.0.1",
-  "apkUrl": "https://github.com/0Lu-cy0/muse-multi-account/releases/download/v1.0.1/muse-container-host-v21-debug.apk",
-  "sha256": "69d0b6ff2697087e827832bff093a585807a1f9769f74ddaf8e554a63a5db13d",
-  "changelog": "Sửa 3 lớp gây màn hình đen sau khi xóa data app: (1) bản ghi tiến trình cũ đã chết không còn được tin mù — engine kiểm tra tiến trình còn sống không trước khi tái sử dụng, chết thì tạo lại từ đầu; (2) khi engine hỏi thông tin app chính mà dịch vụ ảo không có đáp án (tài khoản ảo số 0 không tồn tại sau khi xóa data) thì trả về thông tin thật của hệ thống thay vì null — null này chính là thứ làm hệ thống crash khi gắn app vào tiến trình khách :p0; (3) tự tạo lại tài khoản ảo số 0 nếu bảng tài khoản trống khi khởi động.",
-  "releaseNotes": "Bản 1.0.1 — sửa lỗi màn hình đen sau khi xóa data app (bản ghi tiến trình cũ + crash khi gắn app vào tiến trình khách). Theo Semantic Versioning: sửa lỗi tăng số cuối."
+  "versionCode": 33,
+  "versionName": "1.1.0",
+  "apkUrl": "https://github.com/0Lu-cy0/muse-multi-account/releases/download/v1.1.0/muse-container-host-v22-debug.apk",
+  "sha256": "c006e5e3c94bbd1ca9a92b98bfe07f5279d1cc3719207fb8177dbc24efd8b5de",
+  "changelog": "Tự đặt tên clone theo từng app, bỏ hộp thoại gõ tên: mỗi lần thêm app, clone tự có tên là tên app + số thứ tự của riêng app đó (Muse 1, Muse 2, Block Blast 1), trùng tên thì tự nhảy số tiếp theo; đổi tên sau vẫn làm được bằng cách nhấn giữ vào dòng clone.",
+  "releaseNotes": "Bản 1.1.0 — tính năng mới: tự đặt tên clone theo từng app (tăng số giữa theo Semantic Versioning). Engine giữ nguyên bản 1.0.1."
 }
