@@ -10,7 +10,6 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 
 import top.niunaijun.blackbox.BlackBoxCore;
-import top.niunaijun.blackbox.R;
 import top.niunaijun.blackbox.utils.Slog;
 import android.util.Log;
 import android.widget.ImageView;
@@ -92,19 +91,58 @@ public class LauncherActivity extends Activity {
             } catch (Exception e) {
                 Slog.w(TAG, "Failed to load app icon or name for " + packageName + ": " + e.getMessage());
             }
-            setContentView(R.layout.activity_launcher);
-            ImageView iconView = findViewById(R.id.iv_icon);
-            TextView nameView = findViewById(R.id.tv_app_name);
-            if (nameView != null) {
-                nameView.setText(appName);
-                nameView.setAlpha(0f);
-                nameView.animate()
-                    .alpha(1f)
-                    .setDuration(500)
-                    .setStartDelay(200)
-                    .start();
-            }
-            if (iconView != null && drawable != null) {
+            // v16 fix (2026-10-28): build the splash view in code, do NOT
+            // call setContentView(R.layout.activity_launcher). The R
+            // constants baked into this precompiled engine class at
+            // AAR-build time (activity_launcher = 0x7f0a001c) stopped
+            // matching the host link's merged resource table in v11,
+            // when a new "array" resource type (vpn_countries) pushed
+            // the layout type from 0x0a to 0x0b, so the layout became
+            // 0x7f0b001c and the baked ID no longer exists (type 0x0a
+            // is now interpolator, 7 entries) -> Resources$
+            // NotFoundException at onCreate, every launch, from v11 on
+            // (masked until v15 because launches died earlier at the
+            // null package_manager service). A programmatic view uses
+            // no baked resource IDs at all, so no future resource
+            // addition can break this screen again. Layout matches
+            // the old activity_launcher.xml exactly: white background,
+            // centred vertical column, 96dp icon, 18sp name, 16dp gap.
+            android.widget.LinearLayout root =
+                new android.widget.LinearLayout(this);
+            root.setOrientation(android.widget.LinearLayout.VERTICAL);
+            root.setGravity(android.view.Gravity.CENTER);
+            root.setBackgroundColor(android.graphics.Color.WHITE);
+            root.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                android.widget.LinearLayout.LayoutParams.MATCH_PARENT));
+            float density = getResources().getDisplayMetrics().density;
+            ImageView iconView = new ImageView(this);
+            android.widget.LinearLayout.LayoutParams iconParams =
+                new android.widget.LinearLayout.LayoutParams(
+                    Math.round(96 * density), Math.round(96 * density));
+            iconView.setLayoutParams(iconParams);
+            iconView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            iconView.setContentDescription(appName);
+            root.addView(iconView);
+            TextView nameView = new TextView(this);
+            android.widget.LinearLayout.LayoutParams nameParams =
+                new android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+            nameParams.topMargin = Math.round(16 * density);
+            nameView.setLayoutParams(nameParams);
+            nameView.setTextSize(18);
+            nameView.setTextColor(android.graphics.Color.BLACK);
+            root.addView(nameView);
+            setContentView(root);
+            nameView.setText(appName);
+            nameView.setAlpha(0f);
+            nameView.animate()
+                .alpha(1f)
+                .setDuration(500)
+                .setStartDelay(200)
+                .start();
+            if (drawable != null) {
                 iconView.setImageDrawable(drawable);
                 iconView.setScaleX(0.7f);
                 iconView.setScaleY(0.7f);
