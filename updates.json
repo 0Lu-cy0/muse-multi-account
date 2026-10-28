@@ -1,7 +1,7 @@
 {
-  "versionCode": 23,
-  "versionName": "0.8.2-launchfix",
-  "apkUrl": "https://github.com/0Lu-cy0/muse-multi-account/releases/download/v0.8.2/muse-container-host-v12-debug.apk",
-  "sha256": "65b1a2d242a115a105670bc8f69b48c973668bea4b8a2b226828e28cfb5a6ca1",
-  "changelog": "Sửa lỗi mở clone trên v11 (dịch vụ engine chưa sẵn sàng thì chờ và thử lại, không gọi cài đặt gây lỗi null; lỗi trên màn hình chỉ còn một dòng ngắn). Hàng trên cùng: logo app thay cho dòng chữ tên app, nút Ghi chú chuyển lên cạnh nút đổi ngôn ngữ; nút mở rộng dải VPN thu nhỏ; thẻ clone có thêm chữ Mở."
+  "versionCode": 24,
+  "versionName": "0.8.3-notetab",
+  "apkUrl": "https://github.com/0Lu-cy0/muse-multi-account/releases/download/v0.8.3/muse-container-host-v13-debug.apk",
+  "sha256": "403d51fc634320929383e692122d22e02b1122e79ce33e87ba0f8cb237624834",
+  "changelog": "Ghi chú thành tab riêng ở dưới cùng (Clone / Ghi chú), không còn thẻ thu gọn cuối màn hình chính và không còn cuộn xuống dưới nữa. Logo tiêu đề thành hình tròn, tách nền trong suốt. Sửa thật nút dải VPN thành nút phụ nhỏ và giới hạn dòng trạng thái 2 dòng (hai điểm bản v12 đã ghi sai)."
 }
