@@ -1,7 +1,7 @@
 {
-  "versionCode": 26,
-  "versionName": "0.8.5-pmfix",
-  "apkUrl": "https://github.com/0Lu-cy0/muse-multi-account/releases/download/v0.8.5/muse-container-host-v15-debug.apk",
-  "sha256": "520f9e73db62609fbc87d0f16fd6544cf4bf80900ae44e7245ee093fc750c0dd",
-  "changelog": "Sửa chữa có mục tiêu cho lỗi mở clone: khi dịch vụ package_manager trong engine bị null, engine tái tạo lại dịch vụ đó thay vì tin entry lúc khởi tạo. Lưu ý: nguyên nhân kích hoạt ban đầu chưa được chứng minh tới mức code — log lần test tới sẽ phân biệt bằng dòng Lazy repair."
+  "versionCode": 27,
+  "versionName": "0.8.6-launcherfix",
+  "apkUrl": "https://github.com/0Lu-cy0/muse-multi-account/releases/download/v0.8.6/muse-container-host-v16-debug.apk",
+  "sha256": "08eaeacdc9fd4bcc2ce9cd8a73e71cea570e2d1d8a68d0810e00684de1116620",
+  "changelog": "Sửa crash ở màn hình khởi chạy của clone: từ bản v11, danh sách nước VPN mới làm lệch mã resource của layout, nên lớp engine biên dịch sẵn vẫn tìm layout cũ và crash trước khi vào được Muse. Bản này vẽ màn hình khởi chạy bằng code, không dùng mã layout biên dịch sẵn nữa. Dòng trạng thái đổi thành 'Đã yêu cầu mở' cho đúng thực tế (lệnh mở thành công chưa có nghĩa màn hình Muse đã hiện lên). Cơ chế sửa chữa quản lý gói của v15 vẫn giữ nguyên."
 }
