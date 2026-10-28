@@ -1,8 +1,8 @@
 {
-  "versionCode": 31,
-  "versionName": "1.0.0",
-  "apkUrl": "https://github.com/0Lu-cy0/muse-multi-account/releases/download/v1.0.0/muse-container-host-v20-debug.apk",
-  "sha256": "f6b03d9e428fcc23f2a8df2e3b939f4fa097a448b021ad02746730c22b376188",
-  "changelog": "Sửa tận gốc vòng lặp ở móc quản lý gói: từ bản v11, mã resource bị lệch làm cho tiến trình dịch vụ :black bị nhận dạng sai (không còn được tính là tiến trình dịch vụ), nên các cách sửa dựa vào nhận dạng đó ở v17/v18 không bao giờ có tác dụng, và các móc vốn bị tắt ở :black lại bật lên gây ra cả họ lỗi đệ quy. Bản này nhận dạng :black bằng tên thật ':black' thay vì mã resource, đồng thời thêm chốt chống lặp trong móc quản lý gói: nếu cùng một luồng quay lại móc lần nữa thì đi thẳng tới dịch vụ thật, không vòng lại nữa. Cơ chế khôi phục bước gắn của v19 giữ nguyên, chưa được kiểm chứng lần nào vì các lần trước dịch vụ chết trước.",
-  "releaseNotes": "Bản 1.0.0 — bản hoàn thiện đầu tiên sau chuỗi sửa lỗi mở clone (đúng bit của bản 0.8.10-pmguard). Từ bản này, số phiên bản theo Semantic Versioning: thay đổi lớn tăng số đầu, tính năng mới tăng số giữa, sửa lỗi tăng số cuối."
+  "versionCode": 32,
+  "versionName": "1.0.1",
+  "apkUrl": "https://github.com/0Lu-cy0/muse-multi-account/releases/download/v1.0.1/muse-container-host-v21-debug.apk",
+  "sha256": "69d0b6ff2697087e827832bff093a585807a1f9769f74ddaf8e554a63a5db13d",
+  "changelog": "Sửa 3 lớp gây màn hình đen sau khi xóa data app: (1) bản ghi tiến trình cũ đã chết không còn được tin mù — engine kiểm tra tiến trình còn sống không trước khi tái sử dụng, chết thì tạo lại từ đầu; (2) khi engine hỏi thông tin app chính mà dịch vụ ảo không có đáp án (tài khoản ảo số 0 không tồn tại sau khi xóa data) thì trả về thông tin thật của hệ thống thay vì null — null này chính là thứ làm hệ thống crash khi gắn app vào tiến trình khách :p0; (3) tự tạo lại tài khoản ảo số 0 nếu bảng tài khoản trống khi khởi động.",
+  "releaseNotes": "Bản 1.0.1 — sửa lỗi màn hình đen sau khi xóa data app (bản ghi tiến trình cũ + crash khi gắn app vào tiến trình khách). Theo Semantic Versioning: sửa lỗi tăng số cuối."
 }
