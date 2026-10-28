@@ -444,6 +444,24 @@ public class IActivityManagerProxy extends ClassInvocationStub {
 
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
+            // v17 (bcore-v4n) FIX, part 2 of 2: inside BlackBox itself
+            // (:black server process ONLY), do NOT route to the :black
+            // service. NOTE: the condition must be isServerProcess()
+            // alone — isBlackProcess() is true in GUEST processes too
+            // (BAppClient), and bypassing there would hand guests the
+            // unfiltered real system list instead of the virtual list.
+            // The service implementation used to call the hooked system
+            // ActivityManager, which re-entered this hook forever
+            // (StackOverflowError, log 2026-10-28 12:38:28/29). The
+            // service is now synthetic (part 1), but :black's own
+            // callers (BProcessManagerService.getUsingBPidL/getPid/
+            // getProcessName) need the REAL system list — e.g. to find
+            // live ":pN" proxy processes — so here they bypass straight
+            // to the unhooked original (who == mBase). Guest processes
+            // still go through the service and get the virtual list.
+            if (BlackBoxCore.get().isServerProcess()) {
+                return method.invoke(who, args);
+            }
             RunningAppProcessInfo runningAppProcesses = BActivityManager.get().getRunningAppProcesses(BActivityThread.getAppPackageName(), BActivityThread.getUserId());
             if (runningAppProcesses == null) {
                 return new ArrayList<>();
@@ -457,6 +475,18 @@ public class IActivityManagerProxy extends ClassInvocationStub {
 
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
+            // v17 (bcore-v4n) FIX, same self-recursion family as
+            // GetRunningAppProcesses (audit 2026-10-28): the old
+            // ActiveServices.getRunningServiceInfo called the hooked
+            // system ActivityManager.getRunningServices(), which
+            // re-entered this hook, the service, and so on until
+            // StackOverflowError. Inside BlackBox itself (:black or a
+            // virtual-app client), bypass to the unhooked original so
+            // :black's own callers keep getting the real system list;
+            // guest processes go through the (now synthetic) service.
+            if (BlackBoxCore.get().isServerProcess()) {
+                return method.invoke(who, args);
+            }
             RunningServiceInfo runningServices = BActivityManager.get().getRunningServices(BActivityThread.getAppPackageName(), BActivityThread.getUserId());
             if (runningServices == null) {
                 return new ArrayList<>();

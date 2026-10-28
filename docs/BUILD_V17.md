@@ -193,14 +193,154 @@ does after it.
 
 ## 8. Build record
 
-- Engine: bcore-v4n (v4m source + only this `BActivityManagerService`
-  change; v15 lazy repair and v16 programmatic splash intact). The
-  v4n AAR binary itself is not in git; the engine source change is.
+- Engine: bcore-v4n (v4m source + the `BActivityManagerService` change
+  in §4, plus the full-hook audit fixes in §9; v15 lazy repair and
+  v16 programmatic splash intact). The v4n AAR binary itself is not in
+  git; the engine source changes are.
 - Host: byte-identical to v16 except the manifest version
   (versionCode 28, versionName 0.8.7-splashfix); no string, layout,
   or Java changes in the host.
 - APK: `muse-container-host-v17-debug.apk`, 1,937,533 bytes, SHA-256
-  523e6fabd156034585d73f5b7acb5b52c3140a4704cfc682138bb7dca93e30c1,
+  e4fd5ac2b1b20c9f9d9e1d487a680e1e53b54d7327c6b3dd52af5cf284e904a5
+  (this supersedes the first v17 build, SHA-256 523e6fab...,
+  which contained only the §4 fix and predates the §9 audit fixes —
+  do NOT publish the 523e6fab build),
   apksigner VERIFY_OK, same signer as v10–v16 (installs over v16
   without uninstalling), package com.example.musecontainer, minSdk 29,
   targetSdk 34.
+
+## 9. Full-hook audit (user-requested: compare against everything, not one hook at a time)
+
+After the §4 fix, every remaining hook in `IActivityManagerProxy`
+(37 hooks) and the neighbouring proxies installed by
+`HookManager.init()` in black/server processes were checked for the
+same pattern: hook -> :black service -> service calls a hooked
+framework API -> hook again. `HookManager.init()` installs
+`IActivityManagerProxy` AND `INotificationManagerProxy` (among others)
+in BOTH guest processes and :black, which is what makes the
+self-recursion possible at all.
+
+### 9.1 Proven same-family recursions — FIXED in this build
+
+(a) `GetServices` (`IActivityManagerProxy`, `@ProxyMethod("getServices")`).
+Its service path `ActiveServices.getRunningServiceInfo` called the
+hooked `ActivityManager.getRunningServices(MAX)`, which re-enters
+this hook exactly like §3. Fixed twice over, mirroring §4:
+the service method is now synthetic (built from
+`RunningServiceRecord` + `ProcessRecord`: service ComponentName,
+process name, pid, uid; only records with a live process are listed),
+and the hook bypasses to the unhooked original inside :black (see
+§9.3). `javap -c` on the built AAR confirms the new service method
+calls only `findProcessRecord` — no `getRunningServices`, no
+`getSystemService`.
+
+(b) Notification mutating hooks (`INotificationManagerProxy`):
+`enqueueNotificationWithTag`, `cancelNotificationWithTag`,
+`createNotificationChannels`, `deleteNotificationChannel`,
+`createNotificationChannelGroups`, `deleteNotificationChannelGroup`.
+All six route to `BNotificationManagerService`, which ALWAYS ends in
+a real-manager call (`mRealNotificationManager.notify/cancel/
+createNotificationChannel/deleteNotificationChannel/
+createNotificationChannelGroup/deleteNotificationChannelGroup`).
+Since :black's `NotificationManager` is itself proxied, each of those
+calls re-enters its hook, the service, and so on until
+StackOverflowError — the same cycle as §3, unobserved only because
+no guest notification had been posted in the logged windows yet.
+Fixed with the :black bypass (§9.3) ONLY — no service-side change,
+because real-manager delivery is the intended behaviour (guest
+notifications must actually display, with clone-name labelling).
+Side effect, verified by code: `DaemonService` (which runs in the
+server process) notifications are also covered by this bypass.
+
+(c) The §4 fix's own side effect, found by this audit (this is why
+the audit mattered): the synthetic service list alone would have
+broken :black's internal callers, which need the REAL system list:
+`BProcessManagerService.getUsingBPidL()` (scans for live `:pN`
+proxy processes when allocating a new bpid — with a virtual-only
+list it would see no `:pN` names and could re-allocate a live
+proxy slot), `getPid()` (looks up a `:pN` process's real pid after
+starting it — virtual-only list returns -1, poisoning the new
+`ProcessRecord.pid`), and `getProcessName()` (maps a restarting
+stub process's pid to its `:pN` name — virtual-only list finds
+nothing and throws `RuntimeException("processName = null")`).
+All three run on fresh-process creation, i.e. exactly the path a
+first launch after :black restart takes. Fixed by the :black bypass
+(§9.3): :black's own calls now get the real list, guests still get
+the virtual list.
+
+### 9.2 The bypass rule, and a trap found while writing it
+
+The bypass condition is `BlackBoxCore.get().isServerProcess()` ALONE.
+An earlier draft used `isBlackProcess() || isServerProcess()` (copied
+from `BindServiceCommon`), which would have been WRONG here:
+`isBlackProcess()` means `ProcessType.BAppClient`, i.e. it is TRUE
+in guest processes too. Bypassing there would have handed guests the
+unfiltered real system list instead of the virtual list, and sent
+guest notifications straight to the real manager, skipping the
+clone-name labelling and tap routing entirely. The draft was caught
+by reading `BlackBoxCore`'s `ProcessType` assignment (host package
+-> Main; name ending with the black-box service name -> Server;
+everything else -> BAppClient) and corrected before building; the
+pre-existing `BindServiceCommon` uses of the combined condition were
+left untouched (they answer a different question: "inside the
+virtual environment at all"). Verified in the final source: all 8
+new bypasses (2 AM + 6 notification) use `isServerProcess()` only.
+
+### 9.3 What was checked and found SAFE (no change)
+
+- All other `IActivityManagerProxy` hooks: they either call
+  `method.invoke(who, args)` on the unhooked base, return a
+  synthetic value, or route to AM/PM services whose implementations
+  (after §4/§9.1) make no hooked-framework calls. `BActivityManagerService`
+  post-fix contains no `getSystemService` call at all.
+- `INotificationManagerProxy` get-hooks (`getNotificationChannel`,
+  `getNotificationChannels`, `getNotificationChannelGroups`): their
+  service implementations read only internal notification records,
+  never `mRealNotificationManager` — safe without a bypass.
+- `IPackageManagerProxy` hooks: they route to `BPackageManagerService`,
+  whose implementations work on internal package data
+  (`resolveService`/`queryIntentServicesInternal` read `mPackages`);
+  no hooked-framework call on the guest-launch path.
+- Other `HookManager.init()` proxies (`IDisplayManager`,
+  `ITelephony`, `IAppOps`, `IAlarm`, `IAppWidget`, `IWindow`,
+  `IUser`, `IMediaSession`, `IAudio`, `ISensorPrivacy`,
+  `IWebViewUpdate`, `ContentResolver`, stubs): their hooks call the
+  original via `BR*Stub.asInterface`/`BRServiceManager.getService`
+  or `method.invoke(who)`, or return synthetic values — none routes
+  into a :black service that calls back into the same hooked API.
+  (`ITelephony`'s `BLocationManager` routing was checked:
+  `BLocationManagerService` makes no framework-manager calls.)
+- `ActivityStack`'s `mAms.moveTaskToFront` / `getRecentTasks`: those
+  method names have no hook in `IActivityManagerProxy`, so the stub
+  falls through to the unhooked base — safe.
+
+### 9.4 Suspects NOT fixed (unproven — listed with how to prove each)
+
+These have a code-readable path to the same failure but no log
+evidence and no launch-path trigger, so they were deliberately left
+alone (fixing on suspicion risks breaking working paths):
+
+1. PM host-package branch: `BPackageManagerService.getApplicationInfo/
+   getPackageInfo` call the host `PackageManager` when
+   `packageName == hostPkg`. If a host-package query reaches the
+   service from a hooked process (e.g. :black code querying host
+   info through the PM proxy), it recurses: hook -> service ->
+   host PM -> hook -> ... The guest-launch path never takes this
+   branch (guests query their own package, served from `mPackages`).
+   How to prove: a phone log showing repeating
+   `GetApplicationInfo`/`GetPackageInfo` hook frames around a
+   host-package query, or a targeted test querying host-package
+   info from a guest. If proven, the fix is the same
+   `isServerProcess()` bypass in those two PM hooks.
+2. PM install-path `loadLabel(BlackBoxCore.getPackageManager())`:
+   installs demonstrably work today (v15/v16 logs), and whether
+   `loadLabel` reaches a hooked PM method (`getDrawable` is hooked)
+   in :black is unproven. How to prove: a log taken during
+   "add app" install showing repeating `GetDrawable` frames.
+3. Xiaomi-only `XiaomiPermissionManager` (`PowerManager`/
+   `NotificationManager` calls in :black): the user's phone is a
+   Samsung, so this cannot trigger here. How to prove: a log from a
+   Xiaomi device showing the corresponding hook cycle.
+4. Why v4k did not hit the §3 recursion (carried over from §3):
+   still unexplained by the current evidence; the mechanism itself
+   is proven, and v17's phone test is the arbiter, not v4k history.

@@ -230,26 +230,32 @@ public class ActiveServices {
     }
 
     public RunningServiceInfo getRunningServiceInfo(String callerPackage, int userId) {
-        ActivityManager manager = (ActivityManager)
-                BlackBoxCore.getContext().getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningServiceInfo> runningServices = manager.getRunningServices(Integer.MAX_VALUE);
-        Map<Integer, ActivityManager.RunningServiceInfo> serviceInfoMap = new HashMap<>();
-        for (ActivityManager.RunningServiceInfo runningService : runningServices) {
-            serviceInfoMap.put(runningService.pid, runningService);
-        }
-
+        // v17 (bcore-v4n) FIX, same self-recursion family as
+        // BActivityManagerService.getRunningAppProcesses (audit
+        // 2026-10-28): the old code called the hooked system
+        // ActivityManager.getRunningServices(), which re-entered the
+        // GetServices hook, this service, and so on until
+        // StackOverflowError in :black. Build the entries purely from
+        // BlackBox's own records instead: a record is only listed when
+        // its virtual process is alive (findProcessRecord != null),
+        // which is the same liveness filter the old pid-map lookup
+        // provided. No hooked Android API is touched, so the call
+        // terminates in exactly one hop. (Inside BlackBox itself, the
+        // GetServices hook additionally bypasses to the real system
+        // call, so :black's own callers keep getting the real list.)
         RunningServiceInfo info = new RunningServiceInfo();
         for (RunningServiceRecord value : mRunningServiceRecords.values()) {
             ServiceInfo serviceInfo = value.mServiceInfo;
             ProcessRecord processRecord = BProcessManagerService.get().findProcessRecord(callerPackage, serviceInfo.processName, userId);
-            if (processRecord == null)
+            if (processRecord == null || processRecord.pid <= 0)
                 continue;
-            ActivityManager.RunningServiceInfo runningServiceInfo = serviceInfoMap.get(processRecord.pid);
-            if (runningServiceInfo != null) {
-                runningServiceInfo.process = processRecord.processName;
-                runningServiceInfo.service = new ComponentName(serviceInfo.packageName, serviceInfo.name);
-                info.mRunningServiceInfoList.add(runningServiceInfo);
-            }
+            ActivityManager.RunningServiceInfo runningServiceInfo =
+                    new ActivityManager.RunningServiceInfo();
+            runningServiceInfo.process = processRecord.processName;
+            runningServiceInfo.service = new ComponentName(serviceInfo.packageName, serviceInfo.name);
+            runningServiceInfo.pid = processRecord.pid;
+            runningServiceInfo.uid = processRecord.uid;
+            info.mRunningServiceInfoList.add(runningServiceInfo);
         }
         return info;
     }

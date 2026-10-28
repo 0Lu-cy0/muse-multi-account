@@ -13,6 +13,7 @@ import java.util.List;
 
 import black.android.app.BRNotificationManager;
 import black.android.content.pm.BRParceledListSlice;
+import top.niunaijun.blackbox.BlackBoxCore;
 import top.niunaijun.blackbox.app.BActivityThread;
 import top.niunaijun.blackbox.fake.frameworks.BNotificationManager;
 import top.niunaijun.blackbox.fake.hook.BinderInvocationStub;
@@ -85,6 +86,23 @@ public class INotificationManagerProxy extends BinderInvocationStub {
 
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
+            // v17 (bcore-v4n) FIX, audit 2026-10-28: same self-recursion
+            // family as GetRunningAppProcesses. BNotificationManagerService
+            // always ends in mRealNotificationManager.cancel(...), and
+            // :black's NotificationManager is itself proxied
+            // (HookManager installs this proxy in server processes too),
+            // so without this bypass the call re-enters this hook, the
+            // service, and so on until StackOverflowError. Inside
+            // BlackBox itself (:black server process ONLY), go straight
+            // to the unhooked original; guest processes still go through
+            // the service (which labels the notification, then reaches
+            // the real manager via this same bypass on the :black side).
+            // NOTE: isBlackProcess() is true in guests too, so it must
+            // NOT be part of this condition, or guests would bypass
+            // the labelling service entirely.
+            if (BlackBoxCore.get().isServerProcess()) {
+                return method.invoke(who, args);
+            }
             String tag = (String) args[getTagIndex()];
             int id = (int) args[getIdIndex()];
             BNotificationManager.get().cancelNotificationWithTag(id, tag);
@@ -109,6 +127,17 @@ public class INotificationManagerProxy extends BinderInvocationStub {
 
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
+            // v17 (bcore-v4n) FIX, audit 2026-10-28: same self-recursion
+            // family as GetRunningAppProcesses — the service always ends
+            // in mRealNotificationManager.notify(...), and :black's
+            // NotificationManager is itself proxied. Bypass to the
+            // unhooked original inside :black ONLY (isServerProcess();
+            // isBlackProcess() is also true in guests — see
+            // CancelNotificationWithTag); guest
+            // processes still go through the labelling service.
+            if (BlackBoxCore.get().isServerProcess()) {
+                return method.invoke(who, args);
+            }
             String tag = (String) args[getTagIndex()];
             int id = (int) args[getIdIndex()];
             Notification notification = MethodParameterUtils.getFirstParam(args, Notification.class);
@@ -131,6 +160,15 @@ public class INotificationManagerProxy extends BinderInvocationStub {
 
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
+            // v17 (bcore-v4n) FIX, audit 2026-10-28: same self-recursion
+            // family — the service ends in
+            // mRealNotificationManager.createNotificationChannel(...),
+            // and :black's NotificationManager is itself proxied.
+            // Bypass to the unhooked original inside :black ONLY
+            // (isServerProcess(); isBlackProcess() is also true in guests).
+            if (BlackBoxCore.get().isServerProcess()) {
+                return method.invoke(who, args);
+            }
             List<?> list = BRParceledListSlice.get(args[1]).getList();
             if (list == null)
                 return 0;
@@ -146,6 +184,15 @@ public class INotificationManagerProxy extends BinderInvocationStub {
 
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
+            // v17 (bcore-v4n) FIX, audit 2026-10-28: same self-recursion
+            // family — the service ends in
+            // mRealNotificationManager.deleteNotificationChannel(...),
+            // and :black's NotificationManager is itself proxied.
+            // Bypass to the unhooked original inside :black ONLY
+            // (isServerProcess(); isBlackProcess() is also true in guests).
+            if (BlackBoxCore.get().isServerProcess()) {
+                return method.invoke(who, args);
+            }
             BNotificationManager.get().deleteNotificationChannel((String) args[1]);
             return 0;
         }
@@ -157,6 +204,15 @@ public class INotificationManagerProxy extends BinderInvocationStub {
 
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
+            // v17 (bcore-v4n) FIX, audit 2026-10-28: same self-recursion
+            // family — the service ends in
+            // mRealNotificationManager.createNotificationChannelGroup(...),
+            // and :black's NotificationManager is itself proxied.
+            // Bypass to the unhooked original inside :black ONLY
+            // (isServerProcess(); isBlackProcess() is also true in guests).
+            if (BlackBoxCore.get().isServerProcess()) {
+                return method.invoke(who, args);
+            }
             List<?> list = BRParceledListSlice.get(args[1]).getList();
             for (Object o : list) {
                 BNotificationManager.get().createNotificationChannelGroup((NotificationChannelGroup) o);
@@ -170,6 +226,15 @@ public class INotificationManagerProxy extends BinderInvocationStub {
 
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
+            // v17 (bcore-v4n) FIX, audit 2026-10-28: same self-recursion
+            // family — the service ends in
+            // mRealNotificationManager.deleteNotificationChannelGroup(...),
+            // and :black's NotificationManager is itself proxied.
+            // Bypass to the unhooked original inside :black ONLY
+            // (isServerProcess(); isBlackProcess() is also true in guests).
+            if (BlackBoxCore.get().isServerProcess()) {
+                return method.invoke(who, args);
+            }
             BNotificationManager.get().deleteNotificationChannelGroup((String) args[1]);
             return 0;
         }
