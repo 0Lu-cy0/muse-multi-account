@@ -132,10 +132,41 @@ public class IPackageManagerProxy extends BinderInvocationStub {
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
             String packageName = (String) args[0];
             int flags = MethodParameterUtils.toInt(args[1]);
-            
+
             // Provide fake Google Play Services info for MIUI apps
             if ("com.android.vending".equals(packageName)) {
                 return createFakeGooglePlayServicesPackageInfo();
+            }
+
+            // v18 (bcore-v4o) FIX, same self-recursion family as the v17
+            // AM/notification fixes: inside BlackBox itself (:black
+            // server process ONLY) AND only for the host package, do
+            // NOT route to the :black PM service.
+            // BPackageManagerService.getPackageInfo has a host-package
+            // branch that calls the hooked system PackageManager
+            // (BlackBoxCore.getPackageManager()), and :black's
+            // PackageManager is itself proxied, so without this
+            // bypass the call re-enters this hook, the service, and
+            // so on until StackOverflowError (log 2026-10-28
+            // 13:05:41.469 shows the identical cycle for
+            // GetApplicationInfo; GetPackageInfo shares the branch
+            // verbatim, and the service method calls the system PM
+            // for getPackageInfo ONLY in that host branch, so the
+            // proven cycle is host-package only). The bypass is
+            // deliberately scoped to the host package: :black's own
+            // callers asking about a VIRTUAL package (e.g. the
+            // install path) must still reach the service and get
+            // virtual info, not the real system answer. NOTE: the
+            // condition must use isServerProcess() alone —
+            // isBlackProcess() is true in GUEST processes too
+            // (BAppClient), and bypassing there would hand guests
+            // the real system info instead of the virtual package
+            // info. Guest processes still go through the service;
+            // the service's host branch then reaches the real
+            // manager via this same bypass on the :black side.
+            if (BlackBoxCore.get().isServerProcess()
+                    && BlackBoxCore.getHostPkg().equals(packageName)) {
+                return method.invoke(who, args);
             }
             
             PackageInfo packageInfo = BlackBoxCore.getBPackageManager().getPackageInfo(packageName, flags, BlackBoxCore.getUserId());
@@ -278,7 +309,36 @@ public class IPackageManagerProxy extends BinderInvocationStub {
     public static class GetApplicationInfo extends MethodHook {
         @Override
         protected Object hook(Object who, Method method, Object[] args) throws Throwable {
+            // v18 (bcore-v4o) FIX, same self-recursion family as the
+            // v17 AM/notification fixes, and the exact cycle proven
+            // by log 2026-10-28 13:05:41.469: a caller in :black asks
+            // the system PackageManager for an application info ->
+            // this hook -> BPackageManager -> binder -> :black
+            // BPackageManagerService.getApplicationInfo, whose
+            // host-package branch calls the hooked system
+            // PackageManager (BlackBoxCore.getPackageManager()) ->
+            // this hook again, forever, until StackOverflowError
+            // (stack size 991KB) kills :black. That service method
+            // calls the system PM ONLY in its host-package branch
+            // (line 102), so the proven cycle is host-package only.
+            // Inside BlackBox itself (:black server process ONLY)
+            // AND only for the host package, bypass straight to the
+            // unhooked original (who == mBase). The bypass is
+            // deliberately scoped: :black's own callers asking about
+            // a VIRTUAL package must still reach the service and get
+            // virtual info, not the real system answer. NOTE: the
+            // condition must use isServerProcess() alone —
+            // isBlackProcess() is true in GUEST processes too
+            // (BAppClient); bypassing there would hand guests the
+            // real system info instead of the virtual package info.
+            // Guest processes still go through the service; the
+            // service's host branch then reaches the real manager
+            // via this same bypass on the :black side.
             String packageName = (String) args[0];
+            if (BlackBoxCore.get().isServerProcess()
+                    && BlackBoxCore.getHostPkg().equals(packageName)) {
+                return method.invoke(who, args);
+            }
 
             int flags = MethodParameterUtils.toInt(args[1]);
 //            if (ClientSystemEnv.isFakePackage(packageName)) {
