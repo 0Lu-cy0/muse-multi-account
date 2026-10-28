@@ -166,22 +166,36 @@ public class BActivityManagerService extends IBActivityManagerService.Stub imple
 
     @Override
     public RunningAppProcessInfo getRunningAppProcesses(String callerPackage, int userId) throws RemoteException {
-        ActivityManager manager = (ActivityManager)
-                BlackBoxCore.getContext().getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = manager.getRunningAppProcesses();
-        Map<Integer, ActivityManager.RunningAppProcessInfo> runningProcessMap = new HashMap<>();
-        for (ActivityManager.RunningAppProcessInfo runningProcess : runningAppProcesses) {
-            runningProcessMap.put(runningProcess.pid, runningProcess);
-        }
+        // v17 (bcore-v4n) FIX: never call the system ActivityManager here.
+        // The guest's getRunningAppProcesses() call is intercepted by the
+        // IActivityManagerProxy hook, which binder-calls this service method.
+        // The old code then called manager.getRunningAppProcesses() on an
+        // ActivityManager whose IActivityManager singleton is itself the
+        // hooked proxy, so the call re-entered the hook, re-entered this
+        // service, and so on until StackOverflowError on the binder thread
+        // (log 2026-10-28 12:38:28/29, :black) killed the guest at its
+        // splash screen. Build the list purely from BlackBox's own process
+        // records instead: no hooked Android API is touched, so the call
+        // terminates in exactly one hop. Fields the guest can observe
+        // (processName, pid, uid, pkgList, importance) are filled from the
+        // record; importance is FOREGROUND because a virtual process only
+        // appears here while its app is being launched/used.
         List<ProcessRecord> packageProcessAsUser = BProcessManagerService.get().getPackageProcessAsUser(callerPackage, userId);
 
         RunningAppProcessInfo appProcessInfo = new RunningAppProcessInfo();
         for (ProcessRecord processRecord : packageProcessAsUser) {
-            ActivityManager.RunningAppProcessInfo runningAppProcessInfo = runningProcessMap.get(processRecord.pid);
-            if (runningAppProcessInfo != null) {
-                runningAppProcessInfo.processName = processRecord.processName;
-                appProcessInfo.mAppProcessInfoList.add(runningAppProcessInfo);
+            if (processRecord.pid <= 0) {
+                continue;
             }
+            ActivityManager.RunningAppProcessInfo runningAppProcessInfo =
+                    new ActivityManager.RunningAppProcessInfo();
+            runningAppProcessInfo.processName = processRecord.processName;
+            runningAppProcessInfo.pid = processRecord.pid;
+            runningAppProcessInfo.uid = processRecord.uid;
+            runningAppProcessInfo.pkgList = new String[]{callerPackage};
+            runningAppProcessInfo.importance =
+                    ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
+            appProcessInfo.mAppProcessInfoList.add(runningAppProcessInfo);
         }
         return appProcessInfo;
     }

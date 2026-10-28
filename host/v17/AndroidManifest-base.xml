@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.musecontainer"
+    android:versionCode="28"
+    android:versionName="0.8.7-splashfix">
+    <uses-sdk android:minSdkVersion="29" android:targetSdkVersion="34" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <!-- v5: overlay permission for chat bubbles + fast-switch button.
+         Declared here explicitly (the merged manifest already carried it
+         via the engine manifest). The user must still grant it in
+         Settings: it is a special permission, not a runtime grant. -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- v10: in-app self-update. Android 8+ requires this permission for
+         an app to trigger the system installer for its own update, and
+         the user must also allow "install from this source" once in
+         Settings. Installation itself is NEVER silent: it always goes
+         through the system confirmation dialog. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- v6: narrow launcher-intent <queries> route for the installed-app
+         picker (direction P1). This lists launchable apps only, without
+         QUERY_ALL_PACKAGES. If the system still returns nothing, the
+         picker UI explains why and offers the APK-file fallback. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+    <application
+        android:name=".MuseContainerApp"
+        android:allowBackup="false"
+        android:label="Muse Container (prototype)"
+        android:theme="@android:style/Theme.Material.Light.NoActionBar"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher">
+        <activity android:name=".MainActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!-- v6: installed-app picker (direction P1, full-screen list).
+             Internal only: never exported. -->
+        <activity android:name=".InstalledAppPickerActivity" android:exported="false" />
+        <service android:name=".KeepAliveService" android:exported="false"
+            android:foregroundServiceType="specialUse" />
+        <!-- v5: chat bubbles + fast-switch overlay. Foreground service
+             (specialUse, like KeepAliveService) so Samsung is less
+             likely to kill the overlay; it runs no loops or polling. -->
+        <service android:name=".BubbleService" android:exported="false"
+            android:foregroundServiceType="specialUse" />
+        <!-- v10: serves the downloaded update APK to the system
+             installer only (same app, grantUriPermissions). Not
+             exported: no other app can reach it. -->
+        <provider android:name=".UpdateFileProvider" android:exported="false"
+            android:grantUriPermissions="true"
+            android:authorities="com.example.musecontainer.updateprovider" />
+    </application>
+</manifest>
