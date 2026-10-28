@@ -1,7 +1,7 @@
 {
-  "versionCode": 30,
-  "versionName": "0.8.9-bindfix",
-  "apkUrl": "https://github.com/0Lu-cy0/muse-multi-account/releases/download/v0.8.9/muse-container-host-v19-debug.apk",
-  "sha256": "c82829f1f939ec03d6e4a74c7f6f353f457991f92d1995b77ae0283e712befb8",
-  "changelog": "Sửa lỗi chết tiến trình khách khi gắn ứng dụng (màn hình đen): bước gắn ứng dụng hỏi thông tin gói kèm cờ GET_PROVIDERS và nhận về null, rồi code đọc thẳng vào đó nên văng lỗi null. Bản này có hai lớp: bước gắn thử lại theo thứ tự (cờ gốc, rồi cờ 0 đã chứng minh là chạy được, rồi userId 0, rồi tổng hợp từ thông tin ứng dụng) và không bao giờ tiếp tục với thông tin null; đồng thời mỗi thành phần lỗi trong lúc tạo thông tin gói chỉ bị bỏ qua riêng thành phần đó, không làm null cả gói nữa. Các phần sửa của v15, v16, v17, v18 giữ nguyên. Log lần tới sẽ cho biết cơ chế nào đã xảy ra qua các dòng khôi phục của bước gắn."
+  "versionCode": 31,
+  "versionName": "0.8.10-pmguard",
+  "apkUrl": "https://github.com/0Lu-cy0/muse-multi-account/releases/download/v0.8.10/muse-container-host-v20-debug.apk",
+  "sha256": "f6b03d9e428fcc23f2a8df2e3b939f4fa097a448b021ad02746730c22b376188",
+  "changelog": "Sửa tận gốc vòng lặp ở móc quản lý gói: từ bản v11, mã resource bị lệch làm cho tiến trình dịch vụ :black bị nhận dạng sai (không còn được tính là tiến trình dịch vụ), nên các cách sửa dựa vào nhận dạng đó ở v17/v18 không bao giờ có tác dụng, và các móc vốn bị tắt ở :black lại bật lên gây ra cả họ lỗi đệ quy. Bản này nhận dạng :black bằng tên thật ':black' thay vì mã resource, đồng thời thêm chốt chống lặp trong móc quản lý gói: nếu cùng một luồng quay lại móc lần nữa thì đi thẳng tới dịch vụ thật, không vòng lại nữa. Cơ chế khôi phục bước gắn của v19 giữ nguyên, chưa được kiểm chứng lần nào vì các lần trước dịch vụ chết trước."
 }
