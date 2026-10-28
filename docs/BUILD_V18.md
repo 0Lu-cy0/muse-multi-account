@@ -16,9 +16,17 @@
 - The clone passes the engine splash (white background, Muse icon +
   "Muse" text — that screen is the v16 programmatic LauncherActivity
   splash, NOT the guest's own splash), then the screen goes BLACK and
-  stays black. The user then opened "a new tab" which was also black;
-  the log file ends at 13:05:42.395, so that later "new tab" event is
-  NOT in this log and is not analysed here.
+  stays black.
+- User clarification on the "new tab" (2026-10-28, recorded in
+  BUILD_V18.md without changing the fix direction): "tab mới" means
+  the user tapped to open the clone again and it appeared as a NEW
+  window in the recents/multitasking screen, but that window was
+  still black. I.e. every re-tap creates one more black window. This
+  is consistent with the guest process dying on every launch, as in
+  the 13:05 log — it is NOT a separate event type, and there was no
+  event other than re-opening the clone. (The log file itself ends at
+  13:05:42.395, so the re-taps after that are not in this log, but
+  the user's description matches the log's per-launch death exactly.)
 - The v17 AM `getRunningAppProcesses` fix is NOT implicated: no
   `getRunningAppProcesses` cycle appears anywhere in this log.
 
