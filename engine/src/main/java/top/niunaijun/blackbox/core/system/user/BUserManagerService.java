@@ -19,6 +19,7 @@ import top.niunaijun.blackbox.core.system.ISystemService;
 import top.niunaijun.blackbox.core.system.pm.BPackageManagerService;
 import top.niunaijun.blackbox.utils.CloseUtils;
 import top.niunaijun.blackbox.utils.FileUtils;
+import top.niunaijun.blackbox.utils.Slog;
 
 /**
  * updated by alex5402 on 4/22/21.
@@ -29,6 +30,8 @@ import top.niunaijun.blackbox.utils.FileUtils;
  * TFNQw5HgWUS33Ke1eNmSFTwoQySGU7XNsK (USDT TRC20)
  */
 public class BUserManagerService extends IBUserManagerService.Stub implements ISystemService {
+    public static final String TAG = "BUserManager";
+
     private static BUserManagerService sService = new BUserManagerService();
     public final HashMap<Integer, BUserInfo> mUsers = new HashMap<>();
     public final Object mUserLock = new Object();
@@ -40,6 +43,24 @@ public class BUserManagerService extends IBUserManagerService.Stub implements IS
     @Override
     public void systemReady() {
         scanUserL();
+        // v21 (bcore-v4r) DEFAULT VIRTUAL USER 0 (structural
+        // companion to the PM host fallback): every virtual
+        // service gates first on exists(userId), and before any
+        // guest init has run, callers in a fresh guest process
+        // query with userId 0 (BActivityThread.getUserId() is 0
+        // while mAppConfig == null). If the user table is empty
+        // or missing (fresh install, or a wiped data dir), no
+        // user exists at all and every such call returns null.
+        // Guarantee that virtual user 0 always exists after
+        // startup; existing tables (e.g. only user 2 after an
+        // app-data clear) are left untouched — that case is
+        // covered by the PM host fallback, not by this.
+        synchronized (mUserLock) {
+            if (mUsers.isEmpty()) {
+                createUserLocked(0);
+                Slog.d(TAG, "Created default virtual user 0 (user table was empty or missing)");
+            }
+        }
     }
 
     @Override

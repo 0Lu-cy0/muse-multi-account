@@ -72,7 +72,28 @@ public class BProcessManagerService implements ISystemService {
                         app.initLock.block();
                     }
                     if (app.bActivityThread != null) {
-                        return app;
+                        // v21 (bcore-v4r) STALE-RECORD LIVENESS FIX
+                        // (confirmed cause of the 2026-10-28 day-4/5/6
+                        // silent stall): bActivityThread != null alone
+                        // is NOT proof the guest process is alive —
+                        // :black keeps the record after the guest
+                        // process dies, and the old code returned it
+                        // blindly, so the proxy activity waited
+                        // forever on a dead thread with no crash and
+                        // no log line. Validate the binder first; a
+                        // dead record is dropped and the normal init
+                        // path below runs instead.
+                        boolean alive = false;
+                        try {
+                            alive = app.bActivityThread.asBinder().isBinderAlive();
+                        } catch (Throwable ignored) {
+                        }
+                        if (alive) {
+                            return app;
+                        }
+                        Slog.d(TAG, "Dropped dead process record: " + processName + " userId=" + userId + ", re-initializing");
+                        bProcess.remove(processName);
+                        mPidsSelfLocked.remove(app);
                     }
                 }
                 bpid = getUsingBPidL();

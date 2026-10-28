@@ -231,12 +231,32 @@ public class IPackageManagerProxy extends BinderInvocationStub {
             if (AppSystemEnv.isOpenPackage(packageName)) {
                 return method.invoke(who, args);
             }
+            // v21 (bcore-v4r) PM HOST FALLBACK (fix for the
+            // 2026-10-28 day-7 :p0 bind crash): when the virtual
+            // service returns null for the HOST package, fall back
+            // to the real system PM instead of returning null.
+            // BPackageManagerService.getApplicationInfo gates FIRST
+            // on sUserManager.exists(userId); in :p0, before any
+            // guest init has run, BlackBoxCore.getUserId() is 0
+            // (mAppConfig == null), while after the user's app-data
+            // clear the only virtual user is 2 — so the service
+            // returns null for a missing user 0, and AOSP 14's
+            // tail-of-bind block (which queries the host package
+            // with GET_META_DATA) NPEs on that null. The real PM
+            // answer for the host package is always correct here:
+            // for a genuinely existing virtual user the service
+            // would have answered from its host branch already.
+            // Kept UNDER the v18 bypass and the v20 guard above.
+            if (BlackBoxCore.getHostPkg().equals(packageName)) {
+                Slog.d(TAG, "PM host fallback: service null for " + packageName + " user=" + BlackBoxCore.getUserId() + ", returning real PM info");
+                return method.invoke(who, args);
+            }
             return null;
             } finally {
                 pmGuardExit();
             }
         }
-        
+
         private PackageInfo createFakeGooglePlayServicesPackageInfo() {
             PackageInfo packageInfo = new PackageInfo();
             packageInfo.packageName = "com.android.vending";
@@ -399,6 +419,19 @@ public class IPackageManagerProxy extends BinderInvocationStub {
                 return applicationInfo;
             }
             if (AppSystemEnv.isOpenPackage(packageName)) {
+                return method.invoke(who, args);
+            }
+            // v21 (bcore-v4r) PM HOST FALLBACK, same rationale as
+            // in GetPackageInfo above (day-7 :p0 bind crash): the
+            // virtual service returns null when its exists(userId)
+            // gate fails — in :p0 before guest init, the query
+            // userId is 0 while the only virtual user is 2 — and
+            // AOSP 14's tail-of-bind block NPEs on a null
+            // getApplicationInfo(hostPkg) answer. Fall back to the
+            // real system PM for the host package only, under the
+            // v18 bypass and the v20 guard above.
+            if (BlackBoxCore.getHostPkg().equals(packageName)) {
+                Slog.d(TAG, "PM host fallback: service null for " + packageName + " user=" + BlackBoxCore.getUserId() + ", returning real PM info");
                 return method.invoke(who, args);
             }
             return null;
