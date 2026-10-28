@@ -1,7 +1,7 @@
 {
-  "versionCode": 29,
-  "versionName": "0.8.8-pmrecursion",
-  "apkUrl": "https://github.com/0Lu-cy0/muse-multi-account/releases/download/v0.8.8/muse-container-host-v18-debug.apk",
-  "sha256": "6690bf6049df632de951170996b46b41dd132c305c3c55f13353d86daf9154bf",
-  "changelog": "Sửa màn hình đen sau splash: cùng họ lỗi đệ quy như bản v17 nhưng ở móc quản lý gói — khi dịch vụ cần thông tin của chính gói host, nó gọi vào PackageManager đã bị móc, móc lại gọi về dịch vụ, lặp mãi gây tràn ngăn xếp làm chết tiến trình dịch vụ, rồi tiến trình của Muse không gắn được ứng dụng nên cửa sổ chỉ còn màu đen. Bản này cho hai móc GetApplicationInfo/GetPackageInfo đi thẳng tới dịch vụ thật khi ở tiến trình dịch vụ và hỏi đúng gói host; các gói ảo vẫn đi qua dịch vụ như cũ. Các phần sửa của v15, v16, v17 giữ nguyên."
+  "versionCode": 30,
+  "versionName": "0.8.9-bindfix",
+  "apkUrl": "https://github.com/0Lu-cy0/muse-multi-account/releases/download/v0.8.9/muse-container-host-v19-debug.apk",
+  "sha256": "c82829f1f939ec03d6e4a74c7f6f353f457991f92d1995b77ae0283e712befb8",
+  "changelog": "Sửa lỗi chết tiến trình khách khi gắn ứng dụng (màn hình đen): bước gắn ứng dụng hỏi thông tin gói kèm cờ GET_PROVIDERS và nhận về null, rồi code đọc thẳng vào đó nên văng lỗi null. Bản này có hai lớp: bước gắn thử lại theo thứ tự (cờ gốc, rồi cờ 0 đã chứng minh là chạy được, rồi userId 0, rồi tổng hợp từ thông tin ứng dụng) và không bao giờ tiếp tục với thông tin null; đồng thời mỗi thành phần lỗi trong lúc tạo thông tin gói chỉ bị bỏ qua riêng thành phần đó, không làm null cả gói nữa. Các phần sửa của v15, v16, v17, v18 giữ nguyên. Log lần tới sẽ cho biết cơ chế nào đã xảy ra qua các dòng khôi phục của bước gắn."
 }
