@@ -1,7 +1,7 @@
 {
-  "versionCode": 22,
-  "versionName": "0.8.1-language",
-  "apkUrl": "https://github.com/0Lu-cy0/muse-multi-account/releases/download/v0.8.1/muse-container-host-v11-debug.apk",
-  "sha256": "bba4932790795424c780ddaf6e5d5004395ac156b999653339ec2f11369ee7f4",
-  "changelog": "Màn hình chính làm lại theo mẫu báo cáo (danh sách clone là chính, chạm hàng để mở, nhấn giữ để đổi tên/bật-tắt/xóa) và nút đổi ngôn ngữ Anh/Việt ở đầu màn hình."
+  "versionCode": 23,
+  "versionName": "0.8.2-launchfix",
+  "apkUrl": "https://github.com/0Lu-cy0/muse-multi-account/releases/download/v0.8.2/muse-container-host-v12-debug.apk",
+  "sha256": "65b1a2d242a115a105670bc8f69b48c973668bea4b8a2b226828e28cfb5a6ca1",
+  "changelog": "Sửa lỗi mở clone trên v11 (dịch vụ engine chưa sẵn sàng thì chờ và thử lại, không gọi cài đặt gây lỗi null; lỗi trên màn hình chỉ còn một dòng ngắn). Hàng trên cùng: logo app thay cho dòng chữ tên app, nút Ghi chú chuyển lên cạnh nút đổi ngôn ngữ; nút mở rộng dải VPN thu nhỏ; thẻ clone có thêm chữ Mở."
 }
