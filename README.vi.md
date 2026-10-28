@@ -90,10 +90,17 @@ Muốn biết dự án đã đi từ thiết kế tới ngày chạy được nh
 
 ---
 
+## 🤝 Đóng góp" body, keeping the existing email line
+
 ## 🤝 Đóng góp
 
-Mọi đóng góp cho dự án này, vui lòng liên hệ qua email: **nc12042004@gmail.com**
+Chúng tôi hoan nghênh góp ý giao diện và đóng góp tự nguyện — góp ý giao diện không cần biết code.
 
+- **Góp ý giao diện:** mở một Discussion trong repo để nêu ý tưởng, hoặc mở một Issue bằng mẫu "Góp ý giao diện / UI feedback". Ghi rõ màn hình nào, kèm ảnh chụp màn hình (đã che tên tài khoản và nội dung riêng tư), điện thoại và phiên bản app, vấn đề đang thấy và đề xuất sửa cụ thể. App mới chỉ được kiểm chứng trên Samsung Galaxy A23 (Android 14), nên góp ý từ các máy khác càng quý.
+- **Đóng góp code:** xem CONTRIBUTING.md. Tóm tắt: fork repo, tạo nhánh, mở Pull Request về `main`. Nhánh `main` được bảo vệ, và file APK không bao giờ đưa vào cây git — APK chỉ lên GitHub Releases.
+- Gửi góp ý hay Pull Request không có nghĩa là chắc chắn được đưa vào — người duy trì quyết định cuối cùng.
+
+Mọi đóng góp cho dự án này, vui lòng liên hệ qua email: **nc12042004@gmail.com**
 ---
 
 <div align="center">

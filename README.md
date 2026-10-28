@@ -90,10 +90,17 @@ How did this project go from design to the day it ran, and through which bugs? T
 
 ---
 
+## 🤝 Contributing" body, keeping the existing email line
+
 ## 🤝 Contributing
 
-For all contributions to this project, please contact via email: **nc12042004@gmail.com**
+We welcome UI feedback and voluntary contributions — no coding knowledge is needed to suggest a UI change.
 
+- **UI feedback:** open a Discussion in this repo for an idea, or open an Issue with the "Góp ý giao diện / UI feedback" template. Tell us which screen, attach a screenshot (with account names and private content blurred), your phone model and app version, the problem, and a concrete suggestion. The app has only been verified on a Samsung Galaxy A23 (Android 14), so feedback from other phones is especially valuable.
+- **Code contributions:** see CONTRIBUTING.md. In short: fork, branch, open a Pull Request to `main`. The `main` branch is protected, and APK files never go into the git tree — they go to GitHub Releases only.
+- Submitting feedback or a Pull Request does not guarantee it will be included — the maintainer makes the final decision.
+
+For all contributions to this project, please contact via email: **nc12042004@gmail.com**
 ---
 
 <div align="center">

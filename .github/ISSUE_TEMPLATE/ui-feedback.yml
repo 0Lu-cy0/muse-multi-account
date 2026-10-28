@@ -1,0 +1,66 @@
+name: "Góp ý giao diện / UI feedback"
+description: "Góp ý cách chỉnh sửa giao diện — không cần biết code, chỉ cần ảnh chụp màn hình và mô tả rõ ràng."
+title: "[Giao diện] "
+labels: ["giao diện", "góp ý"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Cảm ơn bạn đã góp ý! Bạn không cần biết code để gửi góp ý này.
+        Thank you for the feedback! No coding knowledge is needed for this form.
+        Vui lòng che tên tài khoản và nội dung chat riêng tư trong ảnh chụp màn hình trước khi gửi.
+        Please blur account names and private chat content in screenshots before submitting.
+  - type: dropdown
+    id: screen
+    attributes:
+      label: "Màn hình nào? / Which screen?"
+      options:
+        - "Màn hình chính — tab Clone / Main screen — Clone tab"
+        - "Tab Ghi chú / Notes tab"
+        - "Tab Tiện ích / Utilities tab"
+        - "Thẻ clone / hàng clone / Clone card / row"
+        - "Hàng tiêu đề, logo, nút đổi ngôn ngữ / Header, logo, language toggle"
+        - "Dải VPN / VPN strip"
+        - "Bong bóng chat / Chat bubbles"
+        - "Màn hình khác / Other screen"
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Vấn đề bạn đang thấy là gì? / What is the problem you see?"
+      description: "Mô tả cụ thể: thành phần nào, trông ra sao, vì sao thấy khó dùng."
+      placeholder: "Ví dụ: nút mở rộng dải VPN quá to, chiếm hết dải, làm phần tóm tắt bị chìm."
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: "Bạn đề xuất sửa như thế nào? / How do you suggest fixing it?"
+      description: "Đề xuất cụ thể càng tốt. Vẽ tay, mockup đơn giản hay ảnh tham khảo đều được, không bắt buộc."
+      placeholder: "Ví dụ: thu nút mở rộng thành nút chữ nhỏ ở cuối dải, để dòng tóm tắt làm nội dung chính."
+    validations:
+      required: false
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: "Ảnh chụp màn hình / Screenshot"
+      description: "Kéo thả ảnh vào đây. Nhớ che thông tin riêng tư trước khi gửi."
+      placeholder: "Kéo thả ảnh chụp màn hình vào đây."
+    validations:
+      required: false
+  - type: input
+    id: device
+    attributes:
+      label: "Điện thoại và phiên bản app / Phone model and app version"
+      description: "Ví dụ: Samsung Galaxy A23, Android 14, app v13 (0.8.3-notetab). App mới chỉ được kiểm chứng trên Galaxy A23, nên góp ý từ máy khác rất quý."
+      placeholder: "Hãng + mẫu máy, phiên bản Android, phiên bản app"
+    validations:
+      required: false
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: "Xác nhận / Confirmation"
+      options:
+        - label: "Tôi đã che tên tài khoản và nội dung riêng tư trong ảnh (nếu có ảnh)."
+          required: false
