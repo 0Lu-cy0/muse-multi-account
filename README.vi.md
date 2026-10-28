@@ -25,6 +25,7 @@
 | 🔔 | **Thông báo gắn tên clone** — biết ngay tin nhắn thuộc tài khoản nào |
 | ⚡ | **Hiệu năng là số một** — giao diện tối giản, tập trung vào chạy mượt |
 | 🔒 | **Không kèm APK gốc** — bạn tự nạp file APK của mình, app không đóng gói hay sửa đổi nó |
+| 🔄 | **Tự cập nhật (từ bản v10)** — kiểm tra và cài cập nhật ngay trong app; xem [Tự cập nhật (từ bản v10)](#tự-cập-nhật-từ-bản-v10) |
 
 ## 🚀 Bắt đầu nhanh
 
@@ -34,6 +35,25 @@
 4. 🔑 Đăng nhập tài khoản trong clone — xong!
 
 > ⚠️ **Lưu ý quan trọng:** Đừng gỡ cài đặt app chủ khi cập nhật, nếu không toàn bộ clone và tài khoản đã đăng nhập sẽ mất.
+
+## 🔄 Tự cập nhật (từ bản v10)
+
+Từ bản v10 trở đi, app có thể tự kiểm tra và cài cập nhật ngay trong app — bạn không cần máy tính và adb cho mỗi lần cập nhật nữa.
+
+> ⚠️ **Các bản v9 trở về trước không có tính năng này** — kể cả bản 1.0.0 công khai. Lần đầu cài bản v10 vẫn phải cài thủ công (cài đè lên bản cũ, tuyệt đối đừng gỡ cài đặt trước, để clone và tài khoản đăng nhập còn nguyên). Chỉ từ bản v10 trở đi thì cập nhật mới làm trong app được.
+
+**Cách cập nhật:**
+1. Mở app, mở mục **Ghi chú** ở cuối màn hình chính.
+2. Bấm **Kiểm tra cập nhật**.
+3. Nếu có bản mới hơn, app sẽ hiện phiên bản mới và nội dung thay đổi.
+4. App tải bản cập nhật về, kiểm tra mã SHA-256, khớp thì mới mở bảng cài đặt của hệ thống để bạn xác nhận.
+
+**Cần có:** mạng internet, truy cập được GitHub Releases, và quyền "cho phép cài đặt từ nguồn này" cho app chủ trong Cài đặt hệ thống, chỉ cần bật một lần (nếu chưa bật, app sẽ dẫn bạn tới đó).
+
+**Giới hạn cần biết:**
+- Android luôn bắt bạn xác nhận trong bảng cài đặt của hệ thống — không có chuyện cài trong im lặng.
+- Cập nhật lấy từ các bản Releases đã đăng trên repo này. Cây git chỉ chứa mã nguồn, không chứa file APK, nên chỉ khi nào có bản Releases mới hơn thì app mới báo có cập nhật.
+- Mọi bản cập nhật phải mang cùng chữ ký với bản đang cài, nếu khác chữ ký thì Android sẽ từ chối cập nhật.
 
 ## 📊 Trạng thái
 

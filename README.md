@@ -25,6 +25,7 @@
 | 🔔 | **Clone-labelled notifications** — tell at a glance which account a message belongs to |
 | ⚡ | **Performance first** — minimal UI, focused on running smoothly |
 | 🔒 | **No target APK bundled** — you supply your own APK; the app never bundles or modifies it |
+| 🔄 | **Self-update (v10 and later)** — check for and install updates from inside the app; see [Self-update (v10 and later)](#self-update-v10-and-later) |
 
 ## 🚀 Quick Start
 
@@ -34,6 +35,25 @@
 4. 🔑 Log in to the account inside the clone — done!
 
 > ⚠️ **Important:** Do NOT uninstall the host app when updating, or all clones and logins will be lost.
+
+## 🔄 Self-update (v10 and later)
+
+From v10 onward, the app can check for and install its own updates from inside the app — you no longer need a PC and adb for every update.
+
+> ⚠️ **v9 and earlier do not have this feature** — including the public 1.0.0 release. The first install of v10 must still be done manually (install over the existing app, never uninstall first, so clones and logins survive). Only from v10 onward are updates done in the app.
+
+**How to update:**
+1. Open the app and open the **Ghi chú** (Notes) section at the bottom of the main screen.
+2. Tap **Kiểm tra cập nhật**.
+3. If a newer version exists, the app shows its version and what changed.
+4. The app downloads the update, verifies its SHA-256, and only then opens the system installer for you to confirm.
+
+**What you need:** internet access, access to GitHub Releases, and the one-time "allow install from this source" permission for the host app in system Settings (the app will guide you there if it is not allowed yet).
+
+**Limits to know:**
+- Android always asks you to confirm in the system installer — there is no silent install.
+- Updates come from published GitHub Releases of this repo. The git tree holds source code, not APKs, so an update is only offered once a newer release is published.
+- Every update must carry the same app signature as the installed app, otherwise Android refuses the update.
 
 ## 📊 Status
 
