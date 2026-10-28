@@ -1,7 +1,7 @@
 {
-  "versionCode": 28,
-  "versionName": "0.8.7-splashfix",
-  "apkUrl": "https://github.com/0Lu-cy0/muse-multi-account/releases/download/v0.8.7/muse-container-host-v17-debug.apk",
-  "sha256": "e4fd5ac2b1b20c9f9d9e1d487a680e1e53b54d7327c6b3dd52af5cf284e904a5",
-  "changelog": "Sửa lỗi treo ở màn hình splash của Muse: khi Muse khởi động, nó hỏi danh sách app đang chạy, và móc của engine trong tiến trình dịch vụ tự gọi lại chính nó gây tràn ngăn xếp, làm chết tiến trình dịch vụ. Bản này làm cho câu hỏi đó trả về danh sách từ hồ sơ tiến trình nội bộ, không chạm vào API đã bị móc nữa. Kèm theo rà soát một thể toàn bộ các móc cùng họ: sửa thêm móc danh sách dịch vụ đang chạy và 6 móc thông báo (chỉ đi qua dịch vụ thật khi ở tiến trình dịch vụ, để thông báo của clone vẫn giữ nhãn tên clone). Cơ chế sửa chữa quản lý gói của v15 và màn hình khởi chạy vẽ bằng code của v16 giữ nguyên."
+  "versionCode": 29,
+  "versionName": "0.8.8-pmrecursion",
+  "apkUrl": "https://github.com/0Lu-cy0/muse-multi-account/releases/download/v0.8.8/muse-container-host-v18-debug.apk",
+  "sha256": "6690bf6049df632de951170996b46b41dd132c305c3c55f13353d86daf9154bf",
+  "changelog": "Sửa màn hình đen sau splash: cùng họ lỗi đệ quy như bản v17 nhưng ở móc quản lý gói — khi dịch vụ cần thông tin của chính gói host, nó gọi vào PackageManager đã bị móc, móc lại gọi về dịch vụ, lặp mãi gây tràn ngăn xếp làm chết tiến trình dịch vụ, rồi tiến trình của Muse không gắn được ứng dụng nên cửa sổ chỉ còn màu đen. Bản này cho hai móc GetApplicationInfo/GetPackageInfo đi thẳng tới dịch vụ thật khi ở tiến trình dịch vụ và hỏi đúng gói host; các gói ảo vẫn đi qua dịch vụ như cũ. Các phần sửa của v15, v16, v17 giữ nguyên."
 }
