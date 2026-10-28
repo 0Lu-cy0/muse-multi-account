@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.graphics.Color;
@@ -77,7 +78,9 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         // v11: language toggle, top of the main screen next to the
-        // title. Label always shows the OTHER language; tapping
+        // Notes button (v12 header: logo left, Notes + language
+        // buttons right; no app-name text on the main screen).
+        // Label always shows the OTHER language; tapping
         // saves the choice and recreates so every string refreshes.
         final Button langBtn = findViewById(R.id.btnLanguageToggle);
         if (langBtn != null) {
@@ -105,14 +108,39 @@ public class MainActivity extends Activity {
         setupVpnStrip();
         // v9 tidy-up: ONE collapsible Notes section at the bottom of
         // the main screen, collapsed by default. All long explanatory
-        // paragraphs moved there; the toggle only shows/hides them.
+        // paragraphs moved there.
+        // v12 header change: the toggle for that section moved from
+        // the bottom card to the top header row (btnNotesTop, next to
+        // the language toggle). It still controls exactly the same
+        // notesContent below; opening it also scrolls the screen
+        // down to the Notes card so the content is visible at once,
+        // and closing it just collapses in place. Labels reuse the
+        // existing notes_toggle / notes_collapse keys in both
+        // languages — no new string key was needed.
+        final ScrollView mainScroll = findViewById(R.id.mainScrollView);
+        final LinearLayout notesCard = findViewById(R.id.notesCard);
         final LinearLayout notesContent = findViewById(R.id.notesContent);
-        final Button notesToggleBtn = findViewById(R.id.notesToggleBtn);
-        notesToggleBtn.setOnClickListener(new View.OnClickListener() {
+        final Button notesTopBtn = findViewById(R.id.btnNotesTop);
+        notesTopBtn.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 boolean nowVisible = notesContent.getVisibility() != View.VISIBLE;
                 notesContent.setVisibility(nowVisible ? View.VISIBLE : View.GONE);
-                notesToggleBtn.setText(nowVisible ? getString(R.string.notes_collapse) : getString(R.string.notes_toggle));
+                notesTopBtn.setText(nowVisible ? getString(R.string.notes_collapse) : getString(R.string.notes_toggle));
+                if (nowVisible && mainScroll != null && notesCard != null) {
+                    // Double-post: the first post runs before the
+                    // layout pass triggered by setVisibility, the
+                    // second after it, so notesCard.getTop() is the
+                    // expanded position, not the collapsed one.
+                    mainScroll.post(new Runnable() {
+                        @Override public void run() {
+                            mainScroll.post(new Runnable() {
+                                @Override public void run() {
+                                    mainScroll.smoothScrollTo(0, notesCard.getTop());
+                                }
+                            });
+                        }
+                    });
+                }
             }
         });
         // v11: battery / keep-alive / refresh relocated from the main

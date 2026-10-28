@@ -145,13 +145,48 @@ install. The build below proves compilation, signing and
 versioning only. This build does not publish a release or
 update updates.json; the parent handles delivery/release.
 
+## Header change, same v12 (added before delivery, no version bump)
+- The main screen NO LONGER shows the app-name text
+  "Muse Container — multi-account" at the top. The new header
+  row, left to right, is: the app's launcher icon
+  (`@mipmap/ic_launcher`, the same icon as the app icon,
+  48dp, left) — then, pushed to the right, the Notes button
+  and the language toggle. No TextView with the app name
+  remains on the main screen (the `app_title` string is kept
+  only as the icon's accessibility description).
+- The Notes button moved UP from the bottom card to that
+  header row (new id `btnNotesTop`, same secondary-button
+  styling and padding as the language toggle). It controls
+  exactly the same collapsed Notes content at the bottom of
+  the screen (`notesContent` in the `notesCard` card): tap it
+  to open/close that content, and when opening, the screen
+  smooth-scrolls down to the Notes card so the content is
+  visible at once (double-posted scroll, so it runs after
+  the layout pass triggered by expanding). Closing just
+  collapses in place, no scroll. The bottom card no longer
+  has its own toggle button.
+- No new string key was needed: the header Notes button
+  reuses the existing labels — "Ghi chú ▾" / "Notes ▾" when
+  closed, "Thu gọn Ghi chú ▴" / "Collapse Notes ▴" when
+  open — in both languages. String counts stay 195 keys each
+  (VI + EN, no duplicates). Everything else in v12 is
+  unchanged (launch fix, VPN strip control, row "Mở" cue,
+  versionCode 23, versionName 0.8.2-launchfix).
+- Still unproven on a real phone, in addition to the items
+  above: that the header Notes button opens the bottom
+  content and scrolls to it, and that the 48dp icon renders
+  crisply (not stretched) on the user's phone.
+
 ## Sources
 - `manual-aar/host-src-v12/` (EngineLauncher.java rewritten
   launch path, MainActivity.java row cue + onResume status
-  clearing, other activities unchanged except string keys)
+  clearing + v12 header Notes button, other activities
+  unchanged except string keys)
 - `manual-aar/host-res-v12/` (layout/activity_main.xml:
-  VPN collapse control, language toggle, status cap;
-  values/strings.xml + values-en/strings.xml)
+  VPN collapse control, language toggle, status cap, v12
+  header icon + top Notes button, notesCard id;
+  values/strings.xml + values-en/strings.xml, unchanged
+  195 keys each)
 - `manual-aar/build-host-v12.sh`,
   `manual-aar/host-manifest-v12-base.xml` (versionCode 23,
   versionName 0.8.2-launchfix), `manual-aar/merge-manifest-v12.py`
