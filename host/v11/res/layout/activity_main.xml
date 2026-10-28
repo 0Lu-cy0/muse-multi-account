@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/screen_bg">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+        <!-- v11: language toggle sits next to the title, always
+             visible without opening Notes. Its label always shows the
+             OTHER language ("English" in Vietnamese UI, "Tiếng Việt"
+             in English UI); tapping it switches at once and persists. -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/app_title"
+                android:textSize="22sp"
+                android:textColor="@color/teal_dark"
+                android:textStyle="bold" />
+            <Button android:id="@+id/btnLanguageToggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="English"
+                android:background="@drawable/btn_secondary"
+                android:textColor="@color/text_dark" />
+        </LinearLayout>
+        <!-- v6, direction A: compact collapsible VPN strip at the top.
+             UI ONLY: there is no working VPN backend in this build and
+             no WireGuard configuration exists yet, so this strip must
+             never show a fake Connected state or a fake IP. The
+             summary line always stays visible; the detail block below
+             it collapses to that one line. The long VPN explanation
+             used to sit here (v8); in v9 it lives in the Notes section
+             at the bottom and only one short line remains in the card. -->
+        <LinearLayout android:id="@+id/vpnStrip"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/card_vpn_bg"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp">
+            <TextView android:id="@+id/vpnStripSummary"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="@string/vpn_summary_default"
+                android:textStyle="bold"
+                android:textColor="@color/teal_dark" />
+            <LinearLayout android:id="@+id/vpnStripDetails"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/vpn_country_label" />
+                <Spinner android:id="@+id/vpnCountrySpinner"
+                    android:layout_width="match_parent" android:layout_height="wrap_content" />
+                <TextView android:id="@+id/vpnIpText"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/vpn_ip" />
+                <TextView android:id="@+id/vpnStateText"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/vpn_state" />
+                <Button android:id="@+id/vpnConnectBtn"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/vpn_connect"
+            android:background="@drawable/btn_primary_state"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="8dp"/>
+                <TextView android:id="@+id/vpnExplain"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/vpn_explain" />
+            </LinearLayout>
+            <Button android:id="@+id/vpnCollapseBtn"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="@string/vpn_collapse"
+            android:background="@drawable/btn_accent"
+            android:textColor="@color/text_dark"
+            android:layout_marginBottom="8dp"/>
+        </LinearLayout>
+        <!-- v9, report section 09 two-path add flow: ONE prominent "+"
+             entry (Parallel Space "+" pattern) replacing the old numbered
+             buttons "1. Pick / import user-supplied APK" and "1b. Pick
+             installed app". Tapping it opens the choice between the
+             installed-app picker (P1) and the APK-file import; both
+             underlying functions are unchanged, only the entry point. -->
+        <Button android:id="@+id/btnAddApp"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/btn_add_app"
+            android:textSize="18sp"
+            android:background="@drawable/btn_primary"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="8dp"/>
+
+
+
+
+
+        <!-- v9: no stale default text here any more. This line is now
+             set by code only: a short battery-exemption line on open,
+             or a transient operation result (import/launch/error).
+             The clone count lives in the list header in code. -->
+        <TextView android:id="@+id/statusText"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="" />
+        <LinearLayout android:id="@+id/clonesContainer"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" />
+        <!-- v9 tidy-up: ONE collapsible Notes section at the bottom of
+             the main screen, collapsed by default. Every long/small
+             explanatory paragraph that used to be scattered down the
+             main flow now lives here, grouped under short headings.
+             Nothing was deleted outright: the meanings are preserved. -->
+        <LinearLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/card_bg"
+            android:padding="12dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp">
+            <Button android:id="@+id/notesToggleBtn"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="@string/notes_toggle"
+                android:background="@drawable/btn_secondary"
+                android:textColor="@color/text_dark" />
+            <LinearLayout android:id="@+id/notesContent"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/notes_about_title"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/teal_dark" />
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/notes_about_text" />
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/notes_vpn_title"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/teal_dark" />
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/notes_vpn_text" />
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/notes_bubbles_title"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/teal_dark" />
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/notes_bubbles_text" />
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/notes_notif_title"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/teal_dark" />
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/notes_notif_text" />
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/notes_active_title"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/teal_dark" />
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/notes_active_text" />
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/notes_battery_title"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/teal_dark" />
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/notes_battery_text" />
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/notes_tools_title"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/teal_dark" />
+                <Button android:id="@+id/btnBatteryNotes"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/notes_btn_battery"
+                    android:background="@drawable/btn_secondary"
+                    android:textColor="@color/text_dark" />
+                <Button android:id="@+id/btnKeepAliveNotes"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/notes_btn_keepalive"
+                    android:background="@drawable/btn_secondary"
+                    android:textColor="@color/text_dark" />
+                <Button android:id="@+id/btnRefreshNotes"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/notes_btn_refresh"
+                    android:background="@drawable/btn_secondary"
+                    android:textColor="@color/text_dark" />
+                <!-- v10: in-app self-update. Lives inside the collapsed
+                     Notes section on purpose, so the tidy main screen
+                     stays tidy. Manual only: no background check, no
+                     auto-download, no silent install — the system
+                     installer confirmation dialog always appears. -->
+                <TextView
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/notes_update_title"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/teal_dark" />
+                <TextView android:id="@+id/updateVersionText"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/update_version_default" />
+                <Button android:id="@+id/btnCheckUpdate"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="@string/btn_check_update"
+                    android:background="@drawable/btn_secondary"
+                    android:textColor="@color/text_dark" />
+                <TextView android:id="@+id/updateStatusText"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
